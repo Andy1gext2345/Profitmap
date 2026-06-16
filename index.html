@@ -1,0 +1,3158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ProfitMap">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e0f11">
+<title>ProfitMap — Sterling Oak</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0f11;--bg2:#15171a;--bg3:#1c1f23;--bg4:#23272d;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#f0ede8;--text2:#8b8f96;--text3:#555a62;
+  --accent:#c8f06e;--red:#f05a5a;--amber:#f0a83a;--green:#6ed67a;--blue:#5ab4f0;--purple:#b49ffc;
+}
+body.light{
+  --bg:#f5f5f2;--bg2:#ffffff;--bg3:#eeecea;--bg4:#e4e2de;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1a1a18;--text2:#4a4a46;--text3:#9a9890;
+  --accent:#5a8a00;--red:#cc2e2e;--amber:#b86e00;--green:#2e7d32;--blue:#1565c0;--purple:#5e35b1;
+}
+/* ── THEME TOGGLE ── */
+.theme-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.theme-toggle-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;transition:color .2s;}
+.toggle-track{width:44px;height:24px;border-radius:12px;background:var(--bg4);border:1px solid var(--border2);position:relative;transition:background .25s,border-color .25s;flex-shrink:0;}
+body.light .toggle-track{background:var(--accent);border-color:var(--accent);}
+.toggle-thumb{width:18px;height:18px;border-radius:50%;background:var(--text3);position:absolute;top:2px;left:2px;transition:transform .25s,background .25s;display:flex;align-items:center;justify-content:center;font-size:11px;}
+body.light .toggle-thumb{transform:translateX(20px);background:#fff;}
+/* ── LIGHT MODE OVERRIDES ── */
+body.light .header{background:var(--bg2);border-bottom-color:var(--border);}
+body.light .tabs{background:var(--bg2);border-bottom-color:var(--border);}
+body.light .card{background:var(--bg2);}
+body.light .metric{background:var(--bg3);}
+body.light .metric.live-card{background:linear-gradient(135deg,var(--bg3),rgba(90,138,0,.04));}
+body.light .cost-row:hover{background:var(--bg3);}
+body.light .add-cost-row input,body.light .add-cost-row input.name-in{background:var(--bg3);border-color:var(--border2);color:var(--text);}
+body.light input[type=range]{background:var(--bg4);}
+body.light input[type=range]::-webkit-slider-thumb{background:var(--accent);}
+body.light .sv{color:var(--accent);background:rgba(90,138,0,.08);border-color:rgba(90,138,0,.2);}
+body.light .schip.active{border-color:var(--accent);color:var(--accent);background:rgba(90,138,0,.08);}
+body.light .schip:hover{border-color:var(--accent);color:var(--accent);}
+body.light .hstatus.profit{color:var(--green);border-color:rgba(46,125,50,.3);background:rgba(46,125,50,.08);}
+body.light .hstatus.loss{color:var(--red);border-color:rgba(204,46,46,.3);background:rgba(204,46,46,.08);}
+body.light .hstatus.brk{color:var(--amber);border-color:rgba(184,110,0,.3);background:rgba(184,110,0,.08);}
+body.light .sync-btn{color:var(--text2);border-color:var(--border2);}
+body.light .sync-btn:hover{border-color:var(--accent);color:var(--accent);}
+body.light .connect-btn{background:var(--accent);color:#fff;}
+body.light .connect-btn:hover{background:#4a7800;}
+body.light .save-btn{color:var(--accent);border-color:rgba(90,138,0,.3);background:rgba(90,138,0,.06);}
+body.light .add-btn{color:var(--accent);border-color:rgba(90,138,0,.3);background:rgba(90,138,0,.06);}
+body.light .qbtn:hover{border-color:var(--accent);color:var(--accent);}
+body.light .term-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(184,110,0,.08);}
+body.light .badge.live{background:rgba(46,125,50,.1);color:var(--green);border-color:rgba(46,125,50,.2);}
+body.light .badge.proj{background:rgba(90,138,0,.08);color:var(--accent);border-color:rgba(90,138,0,.15);}
+body.light .note{background:var(--bg3);}
+body.light .url-input{background:var(--bg3);border-color:var(--border2);color:var(--text);}
+body.light input[type=number],body.light input[type=text],body.light input[type=password]{color:var(--text);}
+body.light .data-table td{border-bottom-color:var(--border);}
+body.light .data-table th{border-bottom-color:var(--border2);}
+body.light .data-table tr:hover td{background:var(--bg3);}
+body.light .emp-bar-fill{background:var(--purple);}
+body.light .cost-total-row span:last-child{color:var(--accent);}
+body.light select{background:var(--bg3);border-color:var(--border2);color:var(--text);}
+body.light .scenario-bar{background:var(--bg3);}
+body.light .connect-box{background:var(--bg2);}
+body.light .live-dot.live{box-shadow:0 0 6px rgba(46,125,50,.5);}
+body.light .be-bar-wrap{background:var(--bg4);}
+body.light .be-bar-fill{filter:none;}
+body.light .toggle-track{background:var(--accent);}
+
+*{box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.header-left{display:flex;align-items:baseline;gap:16px;}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);}
+.logo-sub{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.hstatus{font-family:'DM Mono',monospace;font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid;transition:all .3s;}
+.hstatus.profit{color:var(--green);border-color:rgba(110,214,122,.3);background:rgba(110,214,122,.08);}
+.hstatus.loss{color:var(--red);border-color:rgba(240,90,90,.3);background:rgba(240,90,90,.08);}
+.hstatus.brk{color:var(--amber);border-color:rgba(240,168,58,.3);background:rgba(240,168,58,.08);}
+.sync-btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;}
+.sync-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sync-btn.spinning svg{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;transition:background .3s;}
+.live-dot.live{background:var(--green);box-shadow:0 0 6px rgba(110,214,122,.5);}
+.live-dot.error{background:var(--red);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 40px;position:sticky;top:61px;z-index:199;}
+.tab{font-family:'DM Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.08em;padding:12px 20px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text2);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── LAYOUT ── */
+.main{max-width:1200px;margin:0 auto;padding:36px 40px;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+.sec{margin-bottom:36px;}
+.sec-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;transition:border-color .2s;}
+.card:hover{border-color:var(--border2);}
+.card-label{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.metric{background:var(--bg3);border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.metric-label{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.metric-value{font-size:24px;font-weight:600;letter-spacing:-.5px;transition:color .3s;}
+.metric-value.green{color:var(--green);}
+.metric-value.red{color:var(--red);}
+.metric-value.amber{color:var(--amber);}
+.metric-value.blue{color:var(--blue);}
+.metric-value.purple{color:var(--purple);}
+.metric-value.neutral{color:var(--text);}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;}
+.metric.live-card{border-color:rgba(110,214,122,.15);background:linear-gradient(135deg,var(--bg3),rgba(110,214,122,.03));}
+
+/* ── SLIDERS ── */
+.sg{margin-bottom:18px;}.sg:last-child{margin-bottom:0;}
+.st{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.sn{font-size:13px;color:var(--text2);}
+.sv{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--accent);background:rgba(200,240,110,.08);padding:2px 10px;border-radius:4px;border:1px solid rgba(200,240,110,.15);min-width:80px;text-align:center;}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--bg4);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;transition:transform .15s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+
+/* ── COST MANAGER ── */
+.cost-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);transition:background .15s;}
+.cost-row:hover{background:var(--bg3);}
+.cost-name{font-size:13px;color:var(--text2);}
+.cost-name input{background:transparent;border:none;color:var(--text2);font-family:'Sora',sans-serif;font-size:13px;width:100%;outline:none;}
+.cost-name input:focus{color:var(--text);border-bottom:1px solid var(--accent);}
+.cost-amount input{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;width:100px;padding:3px 8px;border-radius:6px;text-align:right;outline:none;}
+.cost-amount input:focus{border-color:var(--accent);}
+.icon-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all .15s;font-size:14px;line-height:1;}
+.icon-btn.del{color:var(--text3);}.icon-btn.del:hover{color:var(--red);background:rgba(240,90,90,.1);}
+.add-cost-row{display:flex;gap:10px;padding:12px 14px;border-top:1px solid var(--border);align-items:center;flex-wrap:wrap;}
+.add-cost-row input{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:7px 12px;border-radius:8px;outline:none;transition:border-color .2s;}
+.add-cost-row input:focus{border-color:var(--accent);}
+.add-cost-row input.name-in{flex:1;min-width:140px;}
+.add-cost-row input.amt-in{width:110px;}
+.add-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;padding:7px 16px;border-radius:8px;border:1px solid rgba(200,240,110,.3);background:rgba(200,240,110,.08);color:var(--accent);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.add-btn:hover{background:rgba(200,240,110,.15);}
+.cost-total-row{display:flex;justify-content:space-between;padding:12px 14px;border-top:2px solid var(--border2);font-weight:500;}
+.cost-total-row span:first-child{font-size:13px;color:var(--text);}
+.cost-total-row span:last-child{font-family:'DM Mono',monospace;font-size:15px;color:var(--accent);font-weight:600;}
+
+/* ── BE BAR ── */
+.be-bar-wrap{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:10px 0 6px;}
+.be-bar-fill{height:100%;border-radius:3px;transition:width .4s,background .3s;}
+.be-bar-labels{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);}
+.chart-wrap{position:relative;width:100%;height:280px;}
+
+/* ── SCENARIOS ── */
+.scenario-bar{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.scenario-list{display:flex;gap:10px;flex-wrap:wrap;}
+.schip{font-family:'DM Mono',monospace;font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg4);color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.schip:hover{border-color:var(--accent);color:var(--accent);}
+.schip.active{border-color:var(--accent);color:var(--accent);background:rgba(200,240,110,.08);}
+.save-btn{display:inline-flex;align-items:center;gap:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:8px;border:1px solid rgba(200,240,110,.3);background:rgba(200,240,110,.08);color:var(--accent);cursor:pointer;transition:all .2s;}
+.save-btn:hover{background:rgba(200,240,110,.15);}
+
+/* ── LIVE DATA ── */
+.connect-box{background:var(--bg2);border:1px dashed var(--border2);border-radius:12px;padding:28px 24px;text-align:center;}
+.connect-box h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:8px;}
+.connect-box p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6;}
+.url-row{display:flex;gap:10px;max-width:600px;margin:0 auto;}
+.url-input{flex:1;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:9px 14px;border-radius:8px;outline:none;}
+.url-input:focus{border-color:var(--accent);}
+.connect-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:none;background:var(--accent);color:#0e0f11;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.connect-btn:hover{background:#d8ff7e;}
+
+/* ── DEALS TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border2);}
+.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--bg3);color:var(--text);}
+.data-table td.mono{font-family:'DM Mono',monospace;color:var(--text);}
+.data-table td.green{color:var(--green);font-family:'DM Mono',monospace;}
+.data-table td.blue{color:var(--blue);font-family:'DM Mono',monospace;}
+
+/* ── EMPLOYEE BARS ── */
+.emp-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.emp-name{font-size:13px;color:var(--text2);min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.emp-bar-wrap{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.emp-bar-fill{height:100%;border-radius:3px;background:var(--purple);transition:width .5s;}
+.emp-amount{font-family:'DM Mono',monospace;font-size:12px;color:var(--purple);min-width:80px;text-align:right;}
+.emp-deals{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:50px;text-align:right;}
+
+/* ── ACTUAL vs PROJECTED ── */
+.avp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;}
+.avp-label{color:var(--text2);min-width:140px;}
+.avp-actual{font-family:'DM Mono',monospace;color:var(--green);font-weight:600;min-width:90px;}
+.avp-proj{font-family:'DM Mono',monospace;color:var(--text3);min-width:90px;}
+.avp-diff{font-family:'DM Mono',monospace;font-size:12px;padding:2px 8px;border-radius:4px;}
+.avp-diff.pos{color:var(--green);background:rgba(110,214,122,.1);}
+.avp-diff.neg{color:var(--red);background:rgba(240,90,90,.1);}
+
+/* ── LOGIN OVERLAY ── */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:40px 36px;width:100%;max-width:400px;text-align:center;}
+.login-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--accent);margin-bottom:4px;}
+.login-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:32px;}
+.login-field{margin-bottom:14px;text-align:left;}
+.login-field label{display:block;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px;}
+.login-field input{width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;padding:10px 14px;border-radius:8px;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:var(--accent);}
+.login-btn{width:100%;background:var(--accent);color:#0e0f11;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;padding:12px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;margin-top:8px;}
+.login-btn:hover{opacity:.9;transform:translateY(-1px);}
+.login-error{font-size:12px;color:var(--red);font-family:'DM Mono',monospace;margin-top:10px;min-height:18px;transition:opacity .2s;}
+.login-footer{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:20px;line-height:1.7;}
+body.light .login-btn{color:#fff;}
+body.light .login-overlay{background:var(--bg);}
+/* ── LOGOUT BTN ── */
+.logout-btn{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+/* ── MANAGE USERS ── */
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;}
+.user-row:last-child{border-bottom:none;}
+.user-row .uname{flex:1;color:var(--text);font-weight:500;}
+.user-row .urole{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;text-transform:uppercase;}
+.user-row .urole.admin{background:rgba(200,240,110,.1);color:var(--accent);border:1px solid rgba(200,240,110,.2);}
+.user-row .urole.viewer{background:rgba(90,180,240,.1);color:var(--blue);border:1px solid rgba(90,180,240,.2);}
+
+/* ── ARCHIVE ── */
+.year-tab{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg4);color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.year-tab:hover{border-color:var(--accent);color:var(--accent);}
+.year-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(200,240,110,.1);}
+.year-tab.current{border-color:var(--blue);color:var(--blue);background:rgba(90,180,240,.08);}
+.arch-kpi{background:var(--bg3);border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.arch-kpi .label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.arch-kpi .value{font-size:22px;font-weight:600;letter-spacing:-.5px;}
+.arch-kpi .change{font-size:11px;font-family:'DM Mono',monospace;margin-top:4px;}
+.arch-kpi .change.up{color:var(--green);}
+.arch-kpi .change.down{color:var(--red);}
+.arch-kpi .change.flat{color:var(--text3);}
+
+/* ── EMPLOYEE PORTAL ── */
+.lb-tab{font-family:'DM Mono',monospace;font-size:12px;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg4);color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.lb-tab:hover{border-color:var(--accent);color:var(--accent);}
+.lb-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(200,240,110,.1);}
+.lb-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:var(--bg3);}
+.lb-row.is-me{background:rgba(200,240,110,.05);border-left:3px solid var(--accent);}
+.lb-rank{font-family:'DM Serif Display',serif;font-size:22px;min-width:40px;text-align:center;}
+.lb-rank.gold{color:#FFD700;}
+.lb-rank.silver{color:#C0C0C0;}
+.lb-rank.bronze{color:#CD7F32;}
+.lb-rank.other{color:var(--text3);}
+.lb-badge{font-size:18px;min-width:28px;text-align:center;}
+.lb-name{flex:1;font-size:14px;font-weight:500;color:var(--text);}
+.lb-name .you{font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);margin-left:6px;background:rgba(200,240,110,.1);padding:1px 6px;border-radius:4px;}
+.lb-deals{font-family:'DM Mono',monospace;font-size:13px;color:var(--blue);min-width:60px;text-align:center;}
+.lb-revenue{font-family:'DM Mono',monospace;font-size:13px;color:var(--green);min-width:80px;text-align:right;}
+.lb-bar-wrap{width:80px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.lb-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .5s;}
+@media(max-width:768px){
+  .lb-bar-wrap{display:none;}
+  .lb-row{padding:12px 16px;gap:8px;}
+  .lb-rank{font-size:18px;min-width:30px;}
+  .lb-revenue{min-width:60px;font-size:12px;}
+  #emp-company-totals{grid-template-columns:1fr 1fr;}
+}
+
+
+.note{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;padding:14px 18px;background:var(--bg3);border-radius:8px;border-left:3px solid var(--border2);line-height:1.7;}
+.term-btn{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg4);color:var(--text3);cursor:pointer;transition:all .15s;}
+.term-btn:hover{border-color:var(--accent);color:var(--accent);}
+.term-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(240,168,58,.08);}
+.qbtn{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg4);color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.qbtn:hover{border-color:var(--accent);color:var(--accent);background:rgba(200,240,110,.06);}
+.badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;display:inline-block;}
+.badge.live{background:rgba(110,214,122,.12);color:var(--green);border:1px solid rgba(110,214,122,.2);}
+.badge.proj{background:rgba(200,240,110,.08);color:var(--accent);border:1px solid rgba(200,240,110,.15);}
+
+/* ════════════════════════════════════════════
+   MOBILE / iPHONE RESPONSIVE
+════════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* ── Safe area + base ── */
+  body{
+    -webkit-text-size-adjust:100%;
+    overflow-x:hidden;
+  }
+
+  /* ── Header ── */
+  .header{
+    padding:12px 16px;
+    flex-wrap:nowrap;
+    gap:8px;
+  }
+  .header-left{ gap:8px; }
+  .logo{ font-size:18px; }
+  .logo-sub{ display:none; }
+  .header-right{ gap:6px; flex-shrink:0; }
+  .hstatus{ font-size:10px; padding:4px 8px; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #header-username{ display:none; }
+  .logout-btn{ font-size:10px; padding:4px 8px; }
+  .sync-btn{ font-size:10px; padding:4px 8px; }
+  .theme-toggle-label{ display:none; }
+  #pm-date{ display:none; }
+  #pm-clock{ font-size:13px; }
+
+  /* ── Tabs — horizontal scroll, no wrap ── */
+  .tabs{
+    padding:0;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    display:flex;
+    flex-wrap:nowrap;
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:57px;
+    z-index:199;
+  }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab{
+    font-size:11px;
+    padding:10px 14px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+
+  /* ── Main content ── */
+  .main{
+    padding:16px;
+    /* bottom padding for thumb reach */
+    padding-bottom:32px;
+  }
+  .sec{ margin-bottom:24px; }
+  .sec-label{ font-size:10px; margin-bottom:10px; }
+
+  /* ── All grids collapse to single column ── */
+  .g2,.g3,.g4,.g5{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  /* ── Cards ── */
+  .card{ padding:14px 16px; border-radius:10px; }
+
+  /* ── Metrics ── */
+  .metric{ padding:12px 14px; }
+  .metric-value{ font-size:20px; }
+  .metric-label{ font-size:10px; }
+
+  /* ── Sliders ── */
+  .sg{ margin-bottom:14px; }
+  .sv{ font-size:11px; min-width:60px; padding:2px 8px; }
+  .sn{ font-size:12px; }
+  input[type=range]::-webkit-slider-thumb{ width:20px; height:20px; }
+
+  /* ── Capital inputs ── */
+  #oop, #sba{
+    font-size:22px;
+    padding:8px 10px;
+  }
+  .qbtn{
+    font-size:11px;
+    padding:6px 10px;
+    /* Minimum touch target */
+    min-height:36px;
+  }
+
+  /* ── Clients input ── */
+  #clients{
+    font-size:22px;
+    padding:8px 10px;
+    width:120px;
+  }
+
+  /* ── Loan term buttons ── */
+  .term-btn{ padding:6px 10px; min-height:36px; }
+
+  /* ── Contract section ── */
+  .inv-split-row{ flex-direction:column; }
+
+  /* ── Cost rows ── */
+  .cost-row{
+    grid-template-columns:1fr auto;
+    gap:8px;
+    padding:10px 12px;
+  }
+  .cost-amount input{ width:80px; font-size:12px; }
+  .add-cost-row{ flex-wrap:wrap; padding:10px 12px; gap:8px; }
+  .add-cost-row input.name-in{ min-width:120px; }
+  .add-cost-row input.amt-in{ width:90px; }
+  .add-btn{ width:100%; justify-content:center; min-height:40px; }
+
+  /* ── Charts — shorter on mobile ── */
+  .chart-wrap{ height:200px; }
+
+  /* ── Data tables — horizontal scroll ── */
+  .data-table{ font-size:11px; }
+  .data-table th, .data-table td{ padding:7px 8px; }
+  /* Wrap table in scrollable container */
+  .card > table.data-table,
+  .card > div > table.data-table{
+    min-width:480px;
+  }
+
+  /* ── Employee bars ── */
+  .emp-name{ min-width:90px; font-size:12px; }
+  .emp-amount{ font-size:11px; min-width:60px; }
+  .emp-deals{ font-size:10px; min-width:40px; }
+
+  /* ── Break-even ── */
+  #be-clients, #be-current{
+    font-size:24px;
+  }
+
+  /* ── Scenario bar ── */
+  .scenario-bar{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .save-btn{ font-size:12px; padding:8px 14px; }
+  .schip{ font-size:10px; padding:4px 10px; }
+
+  /* ── Settings tab ── */
+  .url-row{ flex-direction:column; }
+  .url-input{ width:100%; }
+  .connect-btn{ width:100%; justify-content:center; }
+
+  /* ── User management ── */
+  .user-row{ flex-wrap:wrap; gap:6px; }
+  .user-row .uname{ min-width:100%; }
+
+  /* ── Login overlay ── */
+  .login-box{
+    padding:28px 20px;
+    border-radius:14px;
+    max-width:100%;
+  }
+  .login-logo{ font-size:24px; }
+  .login-field input{ font-size:16px; padding:12px; }
+  .login-btn{ padding:14px; font-size:15px; min-height:48px; }
+
+  /* ── Archive tab ── */
+  .year-tab{ font-size:11px; padding:6px 12px; min-height:36px; }
+  .arch-kpi .value{ font-size:18px; }
+
+  /* ── Notes textarea ── */
+  #arch-notes{ font-size:14px; }
+
+  /* ── Quick amount buttons ── */
+  .qbtn{ min-height:36px; }
+
+  /* ── Summary bars — stack vertically ── */
+  div[id="net-to-you"]{ font-size:16px; }
+
+  /* ── Header status compact ── */
+  .hstatus.profit::before{ content:'▲'; }
+  .hstatus.loss::before{ content:'▼'; }
+}
+
+/* ── iPhone notch / Dynamic Island safe areas ── */
+@supports(padding:max(0px)){
+  .header{
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
+  .tabs{
+    padding-left:max(0px, env(safe-area-inset-left));
+    padding-right:max(0px, env(safe-area-inset-right));
+  }
+  .main{
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+    padding-bottom:max(32px, env(safe-area-inset-bottom));
+  }
+  .login-overlay{
+    padding-left:max(20px, env(safe-area-inset-left));
+    padding-right:max(20px, env(safe-area-inset-right));
+    padding-top:max(20px, env(safe-area-inset-top));
+    padding-bottom:max(20px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ── Extra small screens (SE, mini) ── */
+@media(max-width:390px){
+  .logo{ font-size:16px; }
+  .tab{ font-size:10px; padding:9px 11px; }
+  .main{ padding:12px; }
+  .metric-value{ font-size:18px; }
+  .hstatus{ display:none; }
+  #clients{ font-size:20px; width:100px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     LOGIN OVERLAY — ADMIN ONLY
+════════════════════════════════════════════════ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">ProfitMap</div>
+    <div class="login-sub">Sterling Oak · Admin Access</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <div style="position:relative;">
+        <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')attemptLogin()">
+        <button onclick="togglePwVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;" id="pw-vis-btn">👁</button>
+      </div>
+    </div>
+    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">
+      Admin access only — full dashboard<br>
+      Contact your administrator to reset access
+    </div>
+  </div>
+</div>
+
+<header class="header" id="main-header" style="display:none;">
+  <div class="header-left">
+    <div class="logo">ProfitMap</div>
+    <div class="logo-sub">Sterling Oak</div>
+  </div>
+  <div class="header-right">
+    <!-- Live clock -->
+    <div style="text-align:right;border-right:1px solid var(--border);padding-right:12px;margin-right:4px;">
+      <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--accent);letter-spacing:.05em;line-height:1;" id="pm-clock">00:00:00</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.05em;margin-top:2px;" id="pm-date"></div>
+    </div>
+    <!-- Theme toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <span class="theme-toggle-label" id="theme-label">Dark</span>
+      <div class="toggle-track">
+        <div class="toggle-thumb" id="theme-thumb">🌙</div>
+      </div>
+    </div>
+    <span class="live-dot" id="live-dot"></span>
+    <button class="sync-btn" id="sync-btn" onclick="fetchLiveData()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Sync
+    </button>
+    <div class="hstatus brk" id="hstatus">Calculating...</div>
+    <div style="display:flex;align-items:center;gap:8px;border-left:1px solid var(--border);padding-left:12px;margin-left:4px;">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);" id="header-username"></span>
+      <button class="logout-btn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="main-nav" style="display:none;">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="live">Live Data</div>
+  <div class="tab" data-tab="leaderboard">🏆 Leaderboard</div>
+  <div class="tab" data-tab="projections">Projections</div>
+  <div class="tab" data-tab="costs">Costs</div>
+  <div class="tab" data-tab="archive">📁 Archive</div>
+  <div class="tab" data-tab="settings">Settings</div>
+</nav>
+
+<main class="main" id="main-content" style="display:none;">
+
+<!-- ════════════════════════════════════════════════
+     TAB: OVERVIEW
+════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <!-- Live vs Projected top strip -->
+  <div class="sec">
+    <div class="sec-label">this month <span class="badge live" style="margin-left:4px;">live</span> vs projected <span class="badge proj" style="margin-left:4px;">proj</span></div>
+    <div class="g5">
+      <div class="metric live-card">
+        <div class="metric-label">Company Revenue</div>
+        <div class="metric-value green" id="live-revenue">—</div>
+        <div class="metric-sub" id="live-revenue-proj">proj: —</div>
+      </div>
+      <div class="metric live-card">
+        <div class="metric-label">Employee Payroll</div>
+        <div class="metric-value blue" id="live-commission">—</div>
+        <div class="metric-sub" id="live-commission-proj">proj: —</div>
+      </div>
+      <div class="metric live-card">
+        <div class="metric-label">Net Profit</div>
+        <div class="metric-value" id="live-profit">—</div>
+        <div class="metric-sub" id="live-profit-proj">proj: —</div>
+      </div>
+      <div class="metric live-card">
+        <div class="metric-label">Deals Closed</div>
+        <div class="metric-value neutral" id="live-deals">—</div>
+        <div class="metric-sub" id="live-deals-sub">this month</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg Rev / Deal</div>
+        <div class="metric-value neutral" id="live-avg">—</div>
+        <div class="metric-sub">live average</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chargeback alert strip -->
+  <div class="sec" id="cb-alert-sec" style="display:none;">
+    <div class="sec-label" style="color:var(--red);">chargebacks <span style="font-size:10px;background:rgba(240,90,90,.12);color:var(--red);border:1px solid rgba(240,90,90,.25);padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;margin-left:4px;" id="cb-badge">0</span></div>
+    <div class="g4" style="margin-bottom:16px;">
+      <div class="metric" style="border-color:rgba(240,90,90,.25);background:rgba(240,90,90,.04);">
+        <div class="metric-label">CB Revenue Lost</div>
+        <div class="metric-value red" id="ov-cb-revenue">—</div>
+        <div class="metric-sub">subtracted from totals</div>
+      </div>
+      <div class="metric" style="border-color:rgba(240,90,90,.25);background:rgba(240,90,90,.04);">
+        <div class="metric-label">CB Payroll Reversed</div>
+        <div class="metric-value red" id="ov-cb-commission">—</div>
+        <div class="metric-sub">subtracted from payroll</div>
+      </div>
+      <div class="metric" style="border-color:rgba(240,90,90,.25);background:rgba(240,90,90,.04);">
+        <div class="metric-label">Total CB Deals</div>
+        <div class="metric-value red" id="ov-cb-deals">—</div>
+        <div class="metric-sub">this month</div>
+      </div>
+      <div class="metric" style="border-color:rgba(240,90,90,.25);background:rgba(240,90,90,.04);">
+        <div class="metric-label">CB Rate</div>
+        <div class="metric-value red" id="ov-cb-rate">—</div>
+        <div class="metric-sub">of total deals</div>
+      </div>
+    </div>
+
+    <!-- Chargeback by employee -->
+    <div class="g2">
+      <div class="card" style="border-color:rgba(240,90,90,.2);">
+        <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Chargebacks by employee — this month</div>
+        <div id="cb-emp-bars-month"></div>
+      </div>
+      <div class="card" style="border-color:rgba(240,90,90,.2);">
+        <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Recent chargebacks</div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="min-width:400px;">
+            <thead><tr><th>Date</th><th>Employee</th><th>Client</th><th>CB Commission</th><th>CB Revenue</th></tr></thead>
+            <tbody id="cb-recent-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;">No chargebacks</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly chart — actual + projected -->
+  <div class="sec">
+    <div class="sec-label">revenue — actual vs projected</div>
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:3px;border-radius:2px;background:#6ed67a;display:inline-block;"></span>Actual revenue</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:3px;border-radius:2px;background:#5ab4f0;display:inline-block;"></span>Employee payroll</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:3px;border-radius:2px;background:#f05a5a;display:inline-block;"></span>Chargebacks</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:3px;border-radius:2px;background:#c8f06e;border-style:dashed;display:inline-block;"></span>Projected</span>
+      </div>
+      <div class="chart-wrap"><canvas id="overviewChart" role="img" aria-label="Monthly actual vs projected revenue chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Actual vs Projected + top employees -->
+  <div class="sec">
+    <div class="sec-label">actual vs projected — month to date</div>
+    <div class="g2">
+      <div class="card" id="avp-card">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Connect your sheet to see live comparisons</div>
+      </div>
+      <div class="card">
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">top employees this month</div>
+        <div id="emp-bars"><div style="font-size:13px;color:var(--text3);">No live data yet — connect your sheet</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: LIVE DATA
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-live">
+
+  <!-- Connect box (shown when not connected) -->
+  <div id="connect-box-wrap" class="sec">
+    <div class="connect-box">
+      <h3>Connect your Google Sheet</h3>
+      <p>Paste your Apps Script Web App URL below.<br>After deploying the script, copy the URL from<br><strong style="color:var(--text2);">Deploy → Manage Deployments → Web App URL</strong></p>
+      <div class="url-row">
+        <input class="url-input" id="script-url" type="text" placeholder="https://script.google.com/macros/s/AKfy.../exec">
+        <button class="connect-btn" onclick="saveAndConnect()">Connect</button>
+      </div>
+      <div id="connect-error" style="font-size:12px;color:var(--red);margin-top:10px;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Live data panels (shown when connected) -->
+  <div id="live-data-wrap" style="display:none;">
+
+    <div class="sec">
+      <div class="sec-label">all-time totals <span class="badge live" style="margin-left:4px;">live</span></div>
+      <div class="g4">
+        <div class="metric live-card"><div class="metric-label">Total Revenue</div><div class="metric-value green" id="ld-total-rev">—</div><div class="metric-sub">sterling oak</div></div>
+        <div class="metric live-card"><div class="metric-label">Total Payroll</div><div class="metric-value blue" id="ld-total-comm">—</div><div class="metric-sub">commissions paid</div></div>
+        <div class="metric live-card"><div class="metric-label">Net Profit</div><div class="metric-value" id="ld-total-profit">—</div><div class="metric-sub">after payroll</div></div>
+        <div class="metric"><div class="metric-label">Total Deals</div><div class="metric-value neutral" id="ld-total-deals">—</div><div class="metric-sub">all time</div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">monthly breakdown</div>
+      <div class="card" style="padding:20px;">
+        <div class="chart-wrap"><canvas id="monthlyChart" role="img" aria-label="Monthly revenue and payroll bar chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">employee breakdown</div>
+      <!-- Month selector + employee picker -->
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="font-size:13px;color:var(--text2);">Filter by month:</div>
+        <select id="emp-month-select" onchange="renderEmpSpotlight()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:6px 12px;border-radius:8px;outline:none;cursor:pointer;">
+          <option value="all">All time</option>
+        </select>
+        <div style="font-size:13px;color:var(--text2);margin-left:8px;">Spotlight:</div>
+        <select id="emp-name-select" onchange="renderEmpSpotlight()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:6px 12px;border-radius:8px;outline:none;cursor:pointer;">
+          <option value="all">All employees</option>
+        </select>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="card" style="margin-bottom:16px;padding:20px 22px;">
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;" id="emp-board-label">All employees — all time</div>
+        <div id="emp-full-bars"></div>
+      </div>
+
+      <!-- Spotlight card — shown when a specific employee is selected -->
+      <div id="emp-spotlight-card" style="display:none;">
+        <div class="g4" style="margin-bottom:16px;">
+          <div class="metric live-card"><div class="metric-label">Commission</div><div class="metric-value purple" id="sp-commission">—</div><div class="metric-sub" id="sp-period">—</div></div>
+          <div class="metric live-card"><div class="metric-label">Company Revenue</div><div class="metric-value green" id="sp-revenue">—</div><div class="metric-sub" id="sp-period2">generated</div></div>
+          <div class="metric live-card"><div class="metric-label">Deals Closed</div><div class="metric-value neutral" id="sp-deals">—</div><div class="metric-sub" id="sp-period3">—</div></div>
+          <div class="metric live-card"><div class="metric-label">Avg per Deal</div><div class="metric-value neutral" id="sp-avg">—</div><div class="metric-sub">commission avg</div></div>
+        </div>
+        <!-- Employee month-by-month chart -->
+        <div class="card" style="padding:20px;">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;" id="sp-chart-label">Monthly breakdown</div>
+          <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#b49ffc;display:inline-block;"></span>Commission</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#6ed67a;display:inline-block;"></span>Revenue generated</span>
+          </div>
+          <div style="position:relative;width:100%;height:220px;"><canvas id="sp-chart" role="img" aria-label="Employee monthly commission and revenue chart"></canvas></div>
+        </div>
+        <!-- Employee deals table -->
+        <div class="card" style="padding:0;overflow:hidden;margin-top:16px;">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;" id="sp-deals-label">Recent deals</div>
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+          <table class="data-table" style="min-width:400px;">
+            <thead><tr><th>Date</th><th>Month</th><th>Client</th><th>Commission</th><th>Revenue</th></tr></thead>
+            <tbody id="sp-deals-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px;">Select an employee above</td></tr></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">recent deals</div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <table class="data-table" style="min-width:480px;">
+          <thead><tr><th>Date</th><th>Employee</th><th>Client</th><th>Commission</th><th>Sterling Oak</th><th>Status</th></tr></thead>
+          <tbody id="deals-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">No data loaded</td></tr></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:8px;">
+      <button class="sync-btn" style="margin:0 auto;" onclick="fetchLiveData()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Refresh data
+      </button>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:'DM Mono',monospace;" id="last-sync-label">Never synced</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: LEADERBOARD (ADMIN)
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-leaderboard">
+
+  <div class="sec">
+    <!-- Period tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="lb-tab active" data-period="day"   onclick="switchAdminLBPeriod('day')">📅 Today</button>
+      <button class="lb-tab" data-period="week"  onclick="switchAdminLBPeriod('week')">📆 This Week</button>
+      <button class="lb-tab" data-period="month" onclick="switchAdminLBPeriod('month')">🗓 This Month</button>
+    </div>
+
+    <!-- Admin leaderboard — full view with revenue, commission, chargebacks -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);" id="admin-lb-period-label">This Month's Leaderboard</div>
+        <div style="display:flex;gap:16px;">
+          <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">Deals</span>
+          <span style="font-size:11px;color:var(--green);font-family:'DM Mono',monospace;">Revenue</span>
+          <span style="font-size:11px;color:var(--purple);font-family:'DM Mono',monospace;">Commission</span>
+          <span style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;">CB</span>
+        </div>
+      </div>
+      <div id="admin-leaderboard-list" style="padding:8px 0;">
+        <div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Sync your sheet to see the leaderboard</div>
+      </div>
+    </div>
+
+    <!-- Period totals strip -->
+    <div class="sec-label">period totals</div>
+    <div class="g4" id="admin-lb-totals" style="margin-bottom:24px;">
+      <div class="metric"><div class="metric-label">Total Deals</div><div class="metric-value neutral" id="alb-deals">—</div></div>
+      <div class="metric"><div class="metric-label">Total Revenue</div><div class="metric-value green" id="alb-revenue">—</div></div>
+      <div class="metric"><div class="metric-label">Total Commissions</div><div class="metric-value purple" id="alb-commission">—</div></div>
+      <div class="metric"><div class="metric-label">Chargebacks</div><div class="metric-value red" id="alb-cb">—</div></div>
+    </div>
+
+    <!-- Performance chart for the period -->
+    <div class="sec-label">performance by rep</div>
+    <div class="card" style="padding:20px;">
+      <div class="chart-wrap" style="height:240px;">
+        <canvas id="admin-lb-chart" role="img" aria-label="Leaderboard performance chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: PROJECTIONS
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-projections">
+
+  <!-- Scenarios -->
+  <div class="sec">
+    <div class="sec-label">scenarios</div>
+    <div class="scenario-bar">
+      <div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Quick load</div>
+        <div class="scenario-list" id="scenario-list">
+          <div class="schip active" data-sc="conservative">Conservative</div>
+          <div class="schip" data-sc="moderate">Moderate</div>
+          <div class="schip" data-sc="aggressive">Aggressive</div>
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveScenario()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save as scenario
+      </button>
+    </div>
+  </div>
+
+  <!-- Startup capital -->
+  <div class="sec">
+    <div class="sec-label">startup capital</div>
+    <div class="g2">
+
+      <!-- Out-of-pocket -->
+      <div class="card">
+        <div class="card-label">Out-of-pocket investment</div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Amount</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;color:var(--text3);font-family:'DM Mono',monospace;">$</span>
+            <input type="text" id="oop" value="15000"
+              style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:20px;font-weight:600;padding:8px 12px;border-radius:10px;outline:none;width:100%;letter-spacing:-.5px;"
+              oninput="formatCapitalInput('oop','oop-out');update()"
+              placeholder="Enter any amount">
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;" id="oop-out">$15,000</div>
+        </div>
+        <!-- Quick-select -->
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Quick amounts</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="qbtn" onclick="setCapital('oop',10000)">$10k</button>
+          <button class="qbtn" onclick="setCapital('oop',15000)">$15k</button>
+          <button class="qbtn" onclick="setCapital('oop',25000)">$25k</button>
+          <button class="qbtn" onclick="setCapital('oop',50000)">$50k</button>
+          <button class="qbtn" onclick="setCapital('oop',100000)">$100k</button>
+          <button class="qbtn" onclick="setCapital('oop',250000)">$250k</button>
+          <button class="qbtn" onclick="setCapital('oop',500000)">$500k</button>
+          <button class="qbtn" onclick="setCapital('oop',1000000)">$1M</button>
+        </div>
+      </div>
+
+      <!-- Business Loan -->
+      <div class="card">
+        <div class="card-label">Business Loan</div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Loan amount</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;color:var(--text3);font-family:'DM Mono',monospace;">$</span>
+            <input type="text" id="sba" value="55000"
+              style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:20px;font-weight:600;padding:8px 12px;border-radius:10px;outline:none;width:100%;letter-spacing:-.5px;"
+              oninput="formatCapitalInput('sba','sba-out');update()"
+              placeholder="Enter any amount">
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;" id="sba-out">$55,000</div>
+        </div>
+        <!-- Quick-select -->
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Quick amounts</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+          <button class="qbtn" onclick="setCapital('sba',25000)">$25k</button>
+          <button class="qbtn" onclick="setCapital('sba',50000)">$50k</button>
+          <button class="qbtn" onclick="setCapital('sba',100000)">$100k</button>
+          <button class="qbtn" onclick="setCapital('sba',250000)">$250k</button>
+          <button class="qbtn" onclick="setCapital('sba',500000)">$500k</button>
+          <button class="qbtn" onclick="setCapital('sba',1000000)">$1M</button>
+          <button class="qbtn" onclick="setCapital('sba',2000000)">$2M</button>
+          <button class="qbtn" onclick="setCapital('sba',5000000)">$5M</button>
+        </div>
+        <!-- Interest rate + term config -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:14px;border-top:1px solid var(--border);">
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Interest rate (APR %)</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input type="number" id="loan-rate" value="7" min="0" max="99" step="0.25"
+                style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:13px;padding:5px 10px;border-radius:8px;outline:none;width:80px;text-align:right;"
+                oninput="update()">
+              <span style="font-size:13px;color:var(--text3);">%</span>
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;">SBA: 7–11% · Bank: 5–8% · Alt: 10–25%</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Loan term (years)</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="term-btns">
+              <button class="term-btn" data-term="3" onclick="setTerm(3)">3 yr</button>
+              <button class="term-btn active" data-term="5" onclick="setTerm(5)">5 yr</button>
+              <button class="term-btn" data-term="7" onclick="setTerm(7)">7 yr</button>
+              <button class="term-btn" data-term="10" onclick="setTerm(10)">10 yr</button>
+              <button class="term-btn" data-term="15" onclick="setTerm(15)">15 yr</button>
+              <button class="term-btn" data-term="20" onclick="setTerm(20)">20 yr</button>
+              <button class="term-btn" data-term="30" onclick="setTerm(30)">30 yr</button>
+            </div>
+            <input type="hidden" id="loan-term" value="5">
+          </div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);">Monthly payment: <span id="sba-monthly" style="color:var(--amber);font-size:14px;font-weight:600;">$1,089</span></div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);">Total repaid: <span id="loan-total-repaid" style="color:var(--text);">$65,340</span></div>
+        </div>
+        <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);">Total interest: <span id="loan-total-interest" style="color:var(--red);">$10,340</span></div>
+      </div>
+
+    </div>
+    <!-- Capital summary -->
+    <div style="margin-top:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 20px;display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
+      <div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Out-of-pocket</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--blue);" id="cap-oop-display">$15,000</div></div>
+      <div style="font-size:18px;color:var(--text3);">+</div>
+      <div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Loan amount</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--amber);" id="cap-sba-display">$55,000</div></div>
+      <div style="width:1px;height:32px;background:var(--border);"></div>
+      <div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Total capital available</div><div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:var(--accent);" id="total-capital">$70,000</div></div>
+    </div>
+  </div>
+
+  <!-- Contract -->
+  <div class="sec">
+    <div class="sec-label">legacy tax backend contract</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Clients closed per month</div>
+      <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Monthly closings</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="text" id="clients" value="20"
+              style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:26px;font-weight:600;padding:8px 14px;border-radius:10px;outline:none;width:140px;letter-spacing:-.5px;text-align:center;"
+              oninput="update()" placeholder="0">
+            <span style="font-size:13px;color:var(--text3);white-space:nowrap;">clients / mo</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;" id="clients-out"></div>
+        </div>
+        <div style="flex:2;min-width:200px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Quick amounts</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="qbtn" onclick="setClients(10)">10</button>
+            <button class="qbtn" onclick="setClients(25)">25</button>
+            <button class="qbtn" onclick="setClients(50)">50</button>
+            <button class="qbtn" onclick="setClients(100)">100</button>
+            <button class="qbtn" onclick="setClients(250)">250</button>
+            <button class="qbtn" onclick="setClients(500)">500</button>
+            <button class="qbtn" onclick="setClients(1000)">1k</button>
+            <button class="qbtn" onclick="setClients(5000)">5k</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="g2" style="gap:16px;">
+      <div class="card" style="border-top:3px solid var(--blue);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--blue);"></div>
+          <div style="font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;color:var(--blue);">Investigation Fee</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:18px;">100% company revenue — rep commission paid from this</div>
+        <div class="sg">
+          <div class="st"><span class="sn">Fee per client</span><span class="sv" id="inv-fee-out" style="color:var(--blue);border-color:rgba(90,180,240,.25);background:rgba(90,180,240,.08);">$1,000</span></div>
+          <input type="range" min="500" max="1500" step="50" value="1000" id="inv-fee">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;"><span>$500</span><span>$1,500</span></div>
+        </div>
+        <div class="sg">
+          <div class="st"><span class="sn">Rep commission split</span><span class="sv" id="inv-split-out" style="color:var(--blue);border-color:rgba(90,180,240,.25);background:rgba(90,180,240,.08);">50%</span></div>
+          <input type="range" min="0" max="90" step="5" value="50" id="inv-split" oninput="update()">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;"><span>0%</span><span>90%</span></div>
+        </div>
+        <div style="padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;">
+          <div>
+            <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Company keeps / client</div>
+            <div style="font-size:22px;font-weight:600;color:var(--blue);" id="inv-company-per">$500</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Monthly inv. revenue</div>
+            <div style="font-size:22px;font-weight:600;color:var(--blue);" id="inv-monthly-rev">$20,000</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);"></div>
+          <div style="font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;color:var(--accent);">Resolution Fee</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:18px;">Split with backend</div>
+        <div class="sg">
+          <div class="st"><span class="sn">Avg resolution fee / client</span><span class="sv" id="res-fee-out">$5,000</span></div>
+          <input type="range" min="500" max="100000" step="500" value="5000" id="res-fee">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;"><span>$500</span><span>$100k</span></div>
+        </div>
+        <div class="sg">
+          <div class="st"><span class="sn">Your backend split</span><span class="sv" id="split-out">50%</span></div>
+          <input type="range" min="10" max="90" step="5" value="50" id="split">
+        </div>
+        <div style="padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;">
+          <div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Your cut / client</div><div style="font-size:22px;font-weight:600;color:var(--accent);" id="res-net-per">$2,500</div></div>
+          <div style="text-align:right;"><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Monthly resolution rev</div><div style="font-size:22px;font-weight:600;color:var(--accent);" id="res-monthly-rev">$50,000</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;">
+      <div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Inv. fee (company)</div><div style="font-size:18px;font-weight:600;color:var(--blue);" id="summary-inv">$500</div></div>
+      <div style="font-size:16px;color:var(--text3);">+</div>
+      <div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Resolution (your cut)</div><div style="font-size:18px;font-weight:600;color:var(--accent);" id="summary-res">$2,500</div></div>
+      <div style="width:1px;height:36px;background:var(--border);"></div>
+      <div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Total revenue / client</div><div style="font-size:18px;font-weight:600;color:var(--text);" id="total-per-client">$3,000</div></div>
+      <div style="font-size:16px;color:var(--text3);">−</div>
+      <div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Rep commission / client</div><div style="font-size:18px;font-weight:600;color:var(--red);" id="summary-rep-comm">$500</div></div>
+      <div style="margin-left:auto;text-align:right;"><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;">Net to company / month</div><div style="font-size:20px;font-weight:600;color:var(--green);" id="net-to-you">$60,000</div></div>
+    </div>
+  </div>
+
+  <!-- Snapshot -->
+  <div class="sec">
+    <div class="sec-label">monthly snapshot</div>
+    <div class="g4">
+      <div class="metric"><div class="metric-label">Total Revenue</div><div class="metric-value neutral" id="m-revenue">$0</div><div class="metric-sub">inv + resolution cut</div></div>
+      <div class="metric"><div class="metric-label">Total Costs</div><div class="metric-value neutral" id="m-costs">$0</div><div class="metric-sub">ops + rep commissions</div></div>
+      <div class="metric"><div class="metric-label">Net Profit</div><div class="metric-value" id="m-profit">$0</div><div class="metric-sub" id="profit-margin">—</div></div>
+      <div class="metric"><div class="metric-label">Cash Runway</div><div class="metric-value" id="m-runway">—</div><div class="metric-sub">on OOP capital</div></div>
+    </div>
+  </div>
+
+  <!-- Break-even -->
+  <div class="sec">
+    <div class="sec-label">break-even threshold</div>
+    <div class="card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <div><div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">Clients needed to break even</div><div style="font-size:32px;font-weight:600;letter-spacing:-1px;font-family:'DM Serif Display',serif;" id="be-clients">—</div></div>
+        <div style="text-align:right;"><div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">Currently closing</div><div style="font-size:32px;font-weight:600;letter-spacing:-1px;font-family:'DM Serif Display',serif;color:var(--accent);" id="be-current">20</div></div>
+      </div>
+      <div class="be-bar-wrap"><div class="be-bar-fill" id="be-bar" style="width:0%;background:var(--green);"></div></div>
+      <div class="be-bar-labels"><span>0</span><span id="be-bar-max">100 clients/mo</span></div>
+    </div>
+  </div>
+
+  <!-- 12mo chart -->
+  <div class="sec">
+    <div class="sec-label">12-month cash projection</div>
+    <div class="card" style="padding:20px;">
+      <div class="chart-wrap"><canvas id="cashChart" role="img" aria-label="12-month cash projection"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Annual -->
+  <div class="sec">
+    <div class="sec-label">annual summary</div>
+    <div class="g3">
+      <div class="metric"><div class="metric-label">Annual Revenue</div><div class="metric-value neutral" id="ann-revenue">$0</div></div>
+      <div class="metric"><div class="metric-label">Annual Costs</div><div class="metric-value neutral" id="ann-costs">$0</div></div>
+      <div class="metric"><div class="metric-label">Annual Profit</div><div class="metric-value" id="ann-profit">$0</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: COSTS
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-costs">
+  <div class="sec">
+    <div class="sec-label">monthly operating costs</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="cost-rows"></div>
+      <div class="add-cost-row">
+        <input class="name-in" id="new-cost-name" type="text" placeholder="Cost name (e.g. Office rent)">
+        <input class="amt-in" id="new-cost-amt" type="number" placeholder="$ amount" min="0" step="1">
+        <button class="add-btn" onclick="addCostRow()">＋ Add cost</button>
+      </div>
+      <div class="cost-total-row"><span>Total monthly costs</span><span id="total-costs">$0</span></div>
+    </div>
+  </div>
+  <div class="note">Locked rows marked (auto) update from your slider values and cannot be deleted. All other rows are fully editable. Changes apply instantly to all projections.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: SETTINGS
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-settings">
+  <div class="sec">
+    <div class="sec-label">google sheets connection</div>
+    <div class="card">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:6px;">Apps Script Web App URL</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <input class="url-input" id="script-url-settings" type="text" placeholder="https://script.google.com/macros/s/..." style="flex:1;min-width:200px;">
+          <button class="connect-btn" onclick="saveAndConnectFromSettings()">Save & Connect</button>
+          <button class="save-btn" onclick="clearConnection()" style="border-color:rgba(240,90,90,.3);color:var(--red);background:rgba(240,90,90,.05);">Disconnect</button>
+        </div>
+        <div id="settings-status" style="font-size:12px;margin-top:8px;font-family:'DM Mono',monospace;color:var(--text3);"></div>
+      </div>
+      <div style="padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--text3);line-height:1.8;font-family:'DM Mono',monospace;">
+          Sheet: Sheet1 &nbsp;·&nbsp; Column L = Commission Totals &nbsp;·&nbsp; Column M = Sterling Oak Totals<br>
+          Auto-refresh: every 5 minutes when connected &nbsp;·&nbsp; Last sync: <span id="settings-last-sync">Never</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-label">how to deploy the apps script</div>
+    <div class="card">
+      <ol style="font-size:13px;color:var(--text2);line-height:2.2;padding-left:20px;">
+        <li>Open your Google Sheet → click <strong style="color:var(--text);">Extensions</strong> → <strong style="color:var(--text);">Apps Script</strong></li>
+        <li>Delete any existing code and paste the entire contents of <strong style="color:var(--accent);">SterlingOak_AppScript.gs</strong></li>
+        <li>Click <strong style="color:var(--text);">Save</strong> (disk icon), then click <strong style="color:var(--text);">Deploy</strong> → <strong style="color:var(--text);">New deployment</strong></li>
+        <li>Set type to <strong style="color:var(--text);">Web app</strong> · Execute as: <strong style="color:var(--text);">Me</strong> · Access: <strong style="color:var(--text);">Anyone</strong></li>
+        <li>Click <strong style="color:var(--text);">Deploy</strong> → copy the <strong style="color:var(--accent);">Web App URL</strong></li>
+        <li>Paste that URL in the connection box above and click <strong style="color:var(--accent);">Save & Connect</strong></li>
+      </ol>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-label">admin · user management</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="user-list"></div>
+      <div style="padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+        <div style="flex:1;min-width:120px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Username</div>
+          <input type="text" id="new-user-name" placeholder="e.g. john"
+            style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:7px 10px;border-radius:7px;outline:none;">
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Password</div>
+          <input type="password" id="new-user-pass" placeholder="Choose a password"
+            style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:7px 10px;border-radius:7px;outline:none;">
+        </div>
+        <div style="min-width:100px;">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Role</div>
+          <select id="new-user-role"
+            style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;border-radius:7px;outline:none;cursor:pointer;">
+            <option value="admin">Admin</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        <button class="add-btn" onclick="addUser()">＋ Add user</button>
+      </div>
+      <div id="user-mgmt-msg" style="font-size:12px;font-family:'DM Mono',monospace;padding:0 18px 12px;display:none;"></div>
+    </div>
+    <div class="note" style="margin-top:10px;">Passwords are hashed with SHA-256 before storage — never saved as plain text. Sessions expire after 8 hours of inactivity.<br><br>
+      <strong style="color:var(--accent);">Employee accounts</strong> are created manually here by admin. Set role to <span style="color:var(--blue);">Viewer</span> for employees — they get the leaderboard portal only. <span style="color:var(--accent);">Admin</span> role gets full ProfitMap access.
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">storage</div>
+    <div class="card" style="padding:18px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+        <span style="font-size:13px;color:var(--text);font-weight:500;">localStorage usage</span>
+        <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--text);" id="storage-label-settings">— / 5 MB</span>
+      </div>
+      <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+        <div id="storage-bar-settings" style="height:100%;border-radius:4px;background:var(--green);transition:width .4s,background .3s;width:0%;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:14px;" id="storage-detail-settings">Calculating...</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="save-btn" onclick="document.querySelectorAll('.tab').forEach(t=>{if(t.dataset.tab==='archive'){t.click();}});" style="font-size:12px;">
+          📁 Go to Archive tab
+        </button>
+        <button class="save-btn" onclick="exportArchive()" style="border-color:var(--border);color:var(--text2);font-size:12px;">⬇ Export Archive</button>
+        <button class="save-btn" onclick="clearArchiveData()" style="border-color:rgba(240,90,90,.3);color:var(--red);background:rgba(240,90,90,.05);font-size:12px;">🗑 Clear Archive</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">appearance</div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:4px;">Color theme</div>
+          <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">Switch between dark and light mode</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="font-size:13px;color:var(--text3);">🌙 Dark</span>
+          <div class="toggle-track" onclick="toggleTheme()" style="cursor:pointer;">
+            <div class="toggle-thumb" id="settings-theme-thumb">🌙</div>
+          </div>
+          <span style="font-size:13px;color:var(--text3);">☀️ Light</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ════════════════════════════════════════════════
+     TAB: YEAR ARCHIVE
+════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-archive">
+
+  <!-- Header actions -->
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:16px;">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:4px;">Year Archive</div>
+        <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">Snapshot, compare, and track performance year over year</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="save-btn" onclick="saveYearSnapshot()" id="snapshot-btn">
+          📸 Save <span id="snapshot-year-label">2025</span> Snapshot
+        </button>
+        <button class="save-btn" onclick="exportAndClearPrompt()" style="border-color:rgba(200,240,110,.3);color:var(--accent);">
+          ⬇ Export & Clear
+        </button>
+        <button class="save-btn" onclick="exportArchive()" style="border-color:var(--border);color:var(--text2);">
+          ⬇ Export Only
+        </button>
+        <button class="save-btn" onclick="document.getElementById('import-archive-input').click()" style="border-color:var(--border);color:var(--text2);">
+          ⬆ Import Archive
+        </button>
+        <input type="file" id="import-archive-input" accept=".json" style="display:none;" onchange="importArchive(event)">
+      </div>
+    </div>
+
+    <!-- Storage meter -->
+    <div class="card" style="padding:14px 18px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">localStorage usage</span>
+            <span style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text);" id="storage-label">— / 5MB</span>
+          </div>
+          <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
+            <div id="storage-bar" style="height:100%;border-radius:3px;background:var(--green);transition:width .4s,background .3s;width:0%;"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:5px;" id="storage-detail">Calculating...</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="save-btn" onclick="clearArchiveData()" style="border-color:rgba(240,90,90,.3);color:var(--red);background:rgba(240,90,90,.05);white-space:nowrap;">
+            🗑 Clear Archive
+          </button>
+          <button class="save-btn" onclick="clearAllAppData()" style="border-color:rgba(240,90,90,.4);color:var(--red);background:rgba(240,90,90,.05);white-space:nowrap;font-size:11px;">
+            ⚠ Clear All App Data
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year selector tabs -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;" id="year-tabs"></div>
+
+    <!-- No data state -->
+    <div id="archive-empty" class="card" style="padding:40px;text-align:center;border-style:dashed;">
+      <div style="font-size:36px;margin-bottom:12px;">📁</div>
+      <div style="font-size:15px;color:var(--text2);margin-bottom:8px;">No archived years yet</div>
+      <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:20px;">
+        Click "Save Snapshot" to archive this year's data.<br>
+        Export before clearing to keep a permanent backup on your device.
+      </div>
+      <button class="connect-btn" onclick="saveYearSnapshot()">📸 Save Current Year Snapshot</button>
+    </div>
+  </div>
+
+  <!-- Archive content — shown when a year is selected -->
+  <div id="archive-content" style="display:none;">
+
+    <!-- KPI comparison strip -->
+    <div class="sec">
+      <div class="sec-label">year snapshot — <span id="arch-year-label">2024</span></div>
+      <div class="g5" id="arch-kpi-strip"></div>
+    </div>
+
+    <!-- YoY comparison -->
+    <div class="sec" id="yoy-sec" style="display:none;">
+      <div class="sec-label">year over year comparison</div>
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;" id="yoy-legend"></div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="yoy-chart" role="img" aria-label="Year over year revenue comparison"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly breakdown for selected year -->
+    <div class="sec">
+      <div class="sec-label">monthly breakdown — <span id="arch-monthly-label">2024</span></div>
+      <div class="card" style="padding:20px;">
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="arch-monthly-chart" role="img" aria-label="Archived year monthly breakdown"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee performance for selected year -->
+    <div class="sec">
+      <div class="sec-label">employee performance — <span id="arch-emp-label">2024</span></div>
+      <div class="card">
+        <div id="arch-emp-bars" style="padding:8px 0;"></div>
+      </div>
+    </div>
+
+    <!-- Snapshot notes -->
+    <div class="sec">
+      <div class="sec-label">snapshot notes</div>
+      <div class="card">
+        <div style="margin-bottom:10px;">
+          <textarea id="arch-notes" rows="3" placeholder="Add notes about this year — goals met, major deals, team changes, contract renegotiations..."
+            style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:10px 14px;border-radius:8px;outline:none;resize:vertical;line-height:1.6;"
+            oninput="saveNoteDebounced()"></textarea>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;" id="arch-snapshot-info">Saved: —</div>
+          <button class="icon-btn del" onclick="deleteYearConfirm()" style="font-size:12px;padding:4px 12px;border:1px solid rgba(240,90,90,.3);border-radius:6px;color:var(--red);">🗑 Delete snapshot</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let cashChart = null, overviewChart = null, monthlyChart = null, spotlightChart = null;
+let costIdSeq = 0;
+let liveData = null;
+let lastSyncTime = null;
+let autoRefreshTimer = null;
+
+
+const COSTS_KEY = 'profitmap_costs';
+const DEFAULT_COSTS = [
+  { name: 'RingCentral (6 users × $75)', amount: 450, locked: false },
+  { name: 'Drop.co RVM', amount: 800, locked: false },
+  { name: 'RingCentral setup (amortized 12mo)', amount: 292, locked: false },
+  { name: 'Lead Warehouse', amount: 1000, locked: true, key: 'leads' },
+  { name: 'Twilio SMS', amount: 200, locked: true, key: 'sms' },
+  { name: 'Business loan repayment', amount: 1089, locked: true, key: 'sba' },
+];
+
+let costs = DEFAULT_COSTS.map(c => ({ ...c, id: ++costIdSeq }));
+
+const scenarios = {
+  conservative: { oop:10000, sba:50000, leads:3000, smsPerLead:5, clients:15, invFee:750,  resFee:3000,  split:45 },
+  moderate:     { oop:15000, sba:55000, leads:5000, smsPerLead:5, clients:30, invFee:1000, resFee:8000,  split:50 },
+  aggressive:   { oop:20000, sba:60000, leads:10000,smsPerLead:3, clients:60, invFee:1250, resFee:20000, split:60 },
+};
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+// ── Capital input helpers ─────────────────────────────────
+function parseCapital(id){
+  const el = document.getElementById(id);
+  if(!el) return 0;
+  // Strip $, commas, spaces — allow decimals
+  const raw = String(el.value).replace(/[$,\s]/g,'');
+  const n = parseFloat(raw);
+  return isNaN(n) ? 0 : Math.max(0, n);
+}
+
+function formatCapitalInput(id, displayId){
+  const n = parseCapital(id);
+  const dispEl = document.getElementById(displayId);
+  if(dispEl) dispEl.textContent = fmtCapital(n);
+}
+
+function setCapital(id, amount){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.value = amount.toLocaleString();
+  formatCapitalInput(id, id+'-out');
+  update();
+}
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function chartTickColor(){ return document.body.classList.contains('light') ? '#9a9890' : '#555a62'; }
+function chartGridColor(){ return document.body.classList.contains('light') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,.04)'; }
+function chartTooltipBg(){ return document.body.classList.contains('light') ? '#ffffff' : '#1c1f23'; }
+function chartTooltipTitle(){ return document.body.classList.contains('light') ? '#4a4a46' : '#8b8f96'; }
+function chartTooltipBody(){ return document.body.classList.contains('light') ? '#1a1a18' : '#f0ede8'; }
+function fmtCapital(n){
+  if(n >= 1000000) return '$'+(n/1000000).toFixed(n%1000000===0?0:2).replace(/\.?0+$/,'')+'M';
+  if(n >= 1000)    return '$'+(n/1000).toFixed(n%1000===0?0:1).replace(/\.?0+$/,'')+'k';
+  return '$'+Math.round(n).toLocaleString();
+}
+function fmtK(n){ return Math.abs(n)>=1000?'$'+(n/1000).toFixed(1)+'k':fmt(n); }
+function fmtLeads(n){
+  if(n >= 1000000) return (n/1000000).toFixed(n%1000000===0?0:2).replace(/\.?0+$/,'')+'M leads';
+  if(n >= 10000)   return (n/1000).toFixed(n%1000===0?0:1).replace(/\.?0+$/,'')+'k leads';
+  return n.toLocaleString()+' leads';
+}
+function fmtDec(n){ return '$'+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function calcLoanPayment(principal, annualRatePct, termYears){
+  if(!principal) return 0;
+  const r = annualRatePct / 100 / 12;
+  const n = termYears * 12;
+  if(r === 0) return principal / n;
+  return principal * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+}
+
+function setClients(n){
+  const el = document.getElementById('clients');
+  if(el){ el.value = n.toLocaleString(); update(); }
+}
+
+function parseClients(){
+  const el = document.getElementById('clients');
+  if(!el) return 20;
+  const n = parseInt(String(el.value).replace(/[,\s]/g,''));
+  return isNaN(n) || n < 0 ? 0 : n;
+}
+
+function setTerm(years){
+  document.getElementById('loan-term').value = years;
+  document.querySelectorAll('.term-btn').forEach(b=>{
+    b.classList.toggle('active', +b.dataset.term === years);
+  });
+  update();
+}
+
+// Keep calcSBA as alias for any legacy calls
+function calcSBA(loan){ return calcLoanPayment(loan, 7, 5); }
+
+// ════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab === 'archive'){
+      renderArchiveTab();
+      setTimeout(updateStorageMeter, 50);
+    }
+    if(t.dataset.tab === 'settings'){
+      setTimeout(updateStorageMeter, 50);
+    }
+    // Render admin leaderboard fresh each time tab is opened
+    if(t.dataset.tab === 'leaderboard' && liveData){
+      renderAdminLeaderboard(liveData, currentAdminLBPeriod);
+      // Sync period tab button states
+      document.querySelectorAll('#tab-leaderboard .lb-tab').forEach(b=>{
+        b.classList.toggle('active', b.dataset.period === currentAdminLBPeriod);
+      });
+    }
+  });
+});
+
+// ════════════════════════════════════════════
+// COST MANAGER
+// ════════════════════════════════════════════
+function renderCosts(){
+  const container = document.getElementById('cost-rows');
+  container.innerHTML = '';
+  costs.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'cost-row' + (c.locked?' locked':'');
+    row.id = 'crow-'+c.id;
+    row.innerHTML = `
+      <div class="cost-name">
+        ${c.locked
+          ? `<span>${c.name} <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">(auto)</span></span>`
+          : `<input type="text" value="${c.name}" onchange="renameCost(${c.id},this.value)">`}
+      </div>
+      <div class="cost-amount" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);text-align:right;">
+        ${c.locked
+          ? `<span id="camount-${c.id}">${fmt(c.amount)}</span>`
+          : `<input type="number" value="${Math.round(c.amount)}" min="0" step="1" onchange="editCostAmt(${c.id},this.value)">`}
+      </div>
+      <button class="icon-btn del" onclick="deleteCost(${c.id})" title="Delete" ${c.locked?'style="visibility:hidden"':''}>✕</button>`;
+    container.appendChild(row);
+  });
+  injectSliders();
+}
+
+// Persist the cost list to localStorage. Stores the full array; locked/auto
+// rows (leads/sms/sba) get recomputed on load, so saving them is harmless.
+function saveCosts(){
+  try{
+    const slim = costs.map(c => ({
+      id: c.id, name: c.name, amount: c.amount, locked: !!c.locked, key: c.key
+    }));
+    localStorage.setItem(COSTS_KEY, JSON.stringify(slim));
+  }catch(e){ console.warn('Could not save costs:', e); }
+}
+
+// Restore the cost list on boot. Falls back to defaults if nothing is stored.
+function loadCosts(){
+  let raw;
+  try{ raw = localStorage.getItem(COSTS_KEY); }catch(e){ return; }
+  if(!raw) return;
+  let saved;
+  try{ saved = JSON.parse(raw); }catch(e){ return; }
+  if(!Array.isArray(saved) || !saved.length) return;
+
+  costs = saved.map(c => {
+    const row = { id: c.id, name: c.name, amount: parseFloat(c.amount)||0, locked: !!c.locked };
+    if(c.key) row.key = c.key;
+    return row;
+  });
+
+  // Re-add any default auto/locked rows (matched by key) that the saved set is
+  // missing, so calculated rows can never be permanently lost.
+  DEFAULT_COSTS.forEach(d => {
+    if(d.key && !costs.some(c => c.key === d.key)){
+      costs.push({ ...d, id: ++costIdSeq });
+    }
+  });
+
+  // Keep the ID counter ahead of every restored row so new IDs can't collide.
+  costIdSeq = costs.reduce((m,c)=>Math.max(m, c.id||0), costIdSeq);
+}
+
+function addCostRow(){
+  const n=document.getElementById('new-cost-name'), a=document.getElementById('new-cost-amt');
+  if(!n.value.trim()){n.focus();return;}
+  costs.push({id:++costIdSeq,name:n.value.trim(),amount:parseFloat(a.value)||0,locked:false});
+  n.value='';a.value='';
+  renderCosts(); update(); saveCosts();
+}
+
+function deleteCost(id){ costs=costs.filter(c=>c.id!==id); renderCosts(); update(); saveCosts(); }
+function renameCost(id,v){ const c=costs.find(x=>x.id===id); if(c)c.name=v; update(); saveCosts(); }
+function editCostAmt(id,v){ const c=costs.find(x=>x.id===id); if(c){c.amount=parseFloat(v)||0;update();} saveCosts(); }
+
+function injectSliders(){
+  const leadC=costs.find(c=>c.key==='leads');
+  const smsC=costs.find(c=>c.key==='sms');
+
+  if(leadC){
+    const row=document.getElementById('crow-'+leadC.id);
+    if(row){
+      row.querySelector('.cost-name').innerHTML=`
+        <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:13px;color:var(--text2);font-weight:500;">Lead Warehouse
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">(auto)</span>
+            </span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">Platform:</span>
+              <input type="text" id="leads-platform" value="Lead Warehouse"
+                style="background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:'Sora',sans-serif;font-size:11px;padding:3px 8px;border-radius:6px;outline:none;width:130px;"
+                onchange="update()" title="Platform name">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Volume / month</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="range" min="500" max="1500000" step="500" value="5000" id="leads-slider" style="flex:1;"
+                  oninput="document.getElementById('leads-lbl').textContent=fmtLeads(+this.value);update();">
+                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-width:76px;text-align:right;" id="leads-lbl">5,000 leads</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:100px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Cost / lead</span>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span style="font-size:12px;color:var(--text3);">$</span>
+                <input type="number" id="leads-rate" value="0.20" min="0" step="0.01"
+                  style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;padding:3px 8px;border-radius:6px;outline:none;width:70px;text-align:right;"
+                  onchange="update()" title="Cost per lead">
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:80px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Monthly total</span>
+              <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;" id="leads-total-lbl">$1,000</span>
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+
+  if(smsC){
+    const row=document.getElementById('crow-'+smsC.id);
+    if(row){
+      row.querySelector('.cost-name').innerHTML=`
+        <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:13px;color:var(--text2);font-weight:500;">SMS / Messaging
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">(auto)</span>
+            </span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">Platform:</span>
+              <input type="text" id="sms-platform" value="Twilio"
+                style="background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:'Sora',sans-serif;font-size:11px;padding:3px 8px;border-radius:6px;outline:none;width:100px;"
+                onchange="update()" title="Platform name">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Texts per lead</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="range" min="1" max="30" step="1" value="5" id="sms-slider" style="flex:1;"
+                  oninput="document.getElementById('sms-lbl').textContent=this.value+' texts/lead';update();">
+                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-width:80px;text-align:right;" id="sms-lbl">5 texts/lead</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:110px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Cost / message</span>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span style="font-size:12px;color:var(--text3);">$</span>
+                <input type="number" id="sms-rate" value="0.008" min="0" step="0.001"
+                  style="background:var(--bg4);border:1px solid var(--border2);color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;padding:3px 8px;border-radius:6px;outline:none;width:74px;text-align:right;"
+                  onchange="update()" title="Cost per SMS">
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:80px;">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;">Monthly total</span>
+              <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;" id="sms-total-lbl">$200</span>
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+}
+
+// ════════════════════════════════════════════
+// PROJECTIONS UPDATE
+// ════════════════════════════════════════════
+function getSV(){
+  return {
+    oop:       parseCapital('oop'),
+    sba:       parseCapital('sba'),
+    loanRate:  +(document.getElementById('loan-rate')||{value:7}).value || 7,
+    loanTerm:  +(document.getElementById('loan-term')||{value:5}).value || 5,
+    leads:     +(document.getElementById('leads-slider')||{value:5000}).value,
+    leadsRate: +(document.getElementById('leads-rate')||{value:0.20}).value || 0.20,
+    sms:       +(document.getElementById('sms-slider')||{value:5}).value,
+    smsRate:   +(document.getElementById('sms-rate')||{value:0.008}).value || 0.008,
+    clients:   parseClients(),
+    invFee:    +document.getElementById('inv-fee').value,
+    invSplit:  +(document.getElementById('inv-split')||{value:50}).value / 100,
+    resFee:    +document.getElementById('res-fee').value,
+    split:     +document.getElementById('split').value/100,
+  };
+}
+
+function update(){
+  const v=getSV();
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el)el.textContent=val; };
+
+  set('oop-out',fmt(v.oop));
+  set('sba-out',fmt(v.sba));
+  set('clients-out', v.clients >= 1000
+    ? (v.clients/1000).toFixed(v.clients%1000===0?0:1).replace(/\.?0+$/,'')+'k clients/mo'
+    : v.clients+' clients/mo');
+  set('inv-fee-out',fmt(v.invFee));
+  set('res-fee-out',fmt(v.resFee));
+  set('split-out',Math.round(v.split*100)+'%');
+
+  const sbaM = calcLoanPayment(v.sba, v.loanRate, v.loanTerm);
+  const loanTotalRepaid   = sbaM * v.loanTerm * 12;
+  const loanTotalInterest = loanTotalRepaid - v.sba;
+  set('total-capital',      fmtCapital(v.oop + v.sba));
+  set('cap-oop-display',    fmtCapital(v.oop));
+  set('cap-sba-display',    fmtCapital(v.sba));
+  set('oop-out',            fmtCapital(v.oop));
+  set('sba-out',            fmtCapital(v.sba));
+  set('sba-monthly',        fmt(sbaM)+'/mo');
+  set('loan-total-repaid',  fmtCapital(loanTotalRepaid));
+  set('loan-total-interest',fmtCapital(Math.max(0, loanTotalInterest)));
+
+  const leadCost = v.leads * v.leadsRate;
+  const smsCost  = v.leads * v.sms * v.smsRate;
+  // update live total labels inside the injected sliders
+  const ltl = document.getElementById('leads-total-lbl');
+  const stl = document.getElementById('sms-total-lbl');
+  if(ltl) ltl.textContent = fmt(leadCost);
+  if(stl) stl.textContent = fmt(smsCost);
+  costs.forEach(c=>{
+    if(c.key==='sba') c.amount=sbaM;
+    if(c.key==='leads') c.amount=leadCost;
+    if(c.key==='sms') c.amount=smsCost;
+    const el=document.getElementById('camount-'+c.id);
+    if(el) el.textContent=fmt(c.amount);
+  });
+
+  const totalMonthly=costs.reduce((s,c)=>s+c.amount,0);
+  set('total-costs',fmt(totalMonthly));
+
+  const invMonthly    = v.clients * v.invFee;             // inv fees — 100% company revenue
+  const invRepComm    = invMonthly * v.invSplit;           // rep commission on inv fee (e.g. 50%)
+  const invCompanyNet = invMonthly - invRepComm;           // company keeps after paying rep
+  const invCompanyPer = v.invFee * (1 - v.invSplit);      // company keeps per client
+
+  const resNetPer     = v.resFee * v.split;               // backend cut per client
+  const resMonthly    = v.clients * resNetPer;            // backend cut total
+
+  // Total revenue = all inv fees collected + resolution cut
+  const revenue       = invMonthly + resMonthly;
+
+  // Rep commissions are a cost deducted from inv fee revenue
+  const repCommissions = invRepComm;
+
+  // Net profit = revenue − operating costs − rep commissions
+  const totalAllCosts = totalMonthly + repCommissions;
+  const profit        = revenue - totalAllCosts;
+  const margin        = revenue > 0 ? ((profit/revenue)*100).toFixed(1) : '—';
+
+  set('inv-fee-out',      fmt(v.invFee));
+  set('inv-split-out',    Math.round(v.invSplit*100)+'%');
+  set('inv-company-per',  fmt(invCompanyPer));
+  set('inv-monthly-rev',  fmt(invMonthly));
+  set('res-net-per',      fmt(resNetPer));
+  set('res-monthly-rev',  fmt(resMonthly));
+  set('summary-inv',      fmt(invCompanyNet / (v.clients||1)));  // company net per client
+  set('summary-res',      fmt(resNetPer));
+  set('summary-rep-comm', fmt(invRepComm / (v.clients||1)));     // rep comm per client
+  set('total-per-client', fmt(invCompanyPer + resNetPer));
+  set('net-to-you',       fmt(revenue - totalAllCosts + totalMonthly)); // gross before ops costs
+
+  // Monthly snapshot
+  set('m-revenue', fmt(revenue));
+  set('m-costs',   fmt(totalAllCosts));
+
+  const pEl=document.getElementById('m-profit');
+  if(pEl){pEl.textContent=fmt(profit);pEl.className='metric-value '+(profit>0?'green':profit<0?'red':'amber');}
+  set('profit-margin',revenue>0?margin+'% margin':'—');
+
+  const rwEl=document.getElementById('m-runway');
+  if(rwEl){
+    if(profit>=0){rwEl.textContent='Profitable';rwEl.className='metric-value green';}
+    else{const mo=Math.abs(Math.floor(v.oop/profit));rwEl.textContent=mo+' mo';rwEl.className='metric-value '+(mo>=6?'amber':'red');}
+  }
+
+  set('ann-revenue', fmt(revenue*12));
+  set('ann-costs',   fmt(totalAllCosts*12));
+  const annP=profit*12;
+  const aEl=document.getElementById('ann-profit');
+  if(aEl){aEl.textContent=fmt(annP);aEl.className='metric-value '+(annP>0?'green':annP<0?'red':'amber');}
+
+  // Break-even: clients needed so revenue covers all costs
+  const revenuePerClient = invCompanyPer + resNetPer;
+  const beC = revenuePerClient > 0 ? Math.ceil(totalAllCosts / revenuePerClient) : Infinity;
+  set('be-clients',beC>9999?'∞':beC.toLocaleString());
+  set('be-current',v.clients.toLocaleString());
+  const barMax=Math.max(100,(beC<9999?beC:100)+30,v.clients+20);
+  set('be-bar-max',barMax+' clients/mo');
+  const pct=Math.min(100,(v.clients/barMax)*100);
+  const bar=document.getElementById('be-bar');
+  if(bar){bar.style.width=pct+'%';bar.style.background=v.clients>=beC?'#6ed67a':'#f05a5a';}
+
+  const sEl=document.getElementById('hstatus');
+  if(sEl){
+    if(profit>0){sEl.className='hstatus profit';sEl.textContent='▲ +'+fmt(profit)+'/mo';}
+    else if(profit===0){sEl.className='hstatus brk';sEl.textContent='◎ Break-even';}
+    else{sEl.className='hstatus loss';sEl.textContent='▼ '+fmt(profit)+'/mo';}
+  }
+
+  buildCashChart(v.oop, v.sba, totalAllCosts, revenue);
+  updateOverviewChart(totalAllCosts, revenue);
+  updateAvP(revenue, totalAllCosts);
+}
+
+// ════════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════════
+function buildCashChart(oop,sba,costs,revenue){
+  const labels=['Start','Mo 1','Mo 2','Mo 3','Mo 4','Mo 5','Mo 6','Mo 7','Mo 8','Mo 9','Mo 10','Mo 11','Mo 12'];
+  const data=[];let cash=oop+sba;data.push(Math.round(cash));
+  for(let i=1;i<=12;i++){cash+=(revenue-costs);data.push(Math.round(cash));}
+  const pts=data.map(v=>v>=0?'#6ed67a':'#f05a5a');
+  const lc=data[12]>=data[0]?'#c8f06e':'#f05a5a';
+  if(cashChart)cashChart.destroy();
+  const ctx=document.getElementById('cashChart');
+  if(!ctx)return;
+  cashChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Cash',data,borderColor:lc,backgroundColor:lc+'14',fill:true,tension:0.4,pointBackgroundColor:pts,pointBorderColor:'transparent',pointRadius:5,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:chartTooltipBg(),borderColor:'rgba(128,128,128,.15)',borderWidth:1,titleColor:chartTooltipTitle(),bodyColor:chartTooltipBody(),callbacks:{label:ctx=>' Cash: $'+ctx.parsed.y.toLocaleString()}}},scales:{y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}},x:{ticks:{color:chartTickColor(),autoSkip:false,maxRotation:0,font:{family:"'DM Mono',monospace",size:10}},grid:{display:false}}}}});
+}
+
+function updateOverviewChart(projCosts, projRevenue){
+  const ctx=document.getElementById('overviewChart'); if(!ctx)return;
+  const months=liveData?liveData.monthly:[];
+  const liveLabels=months.map(m=>m.label||m.month);
+  const liveRev=months.map(m=>m.revenue);
+  const liveComm=months.map(m=>m.commission);
+  const liveCB=months.map(m=>m.cbRevenue||0);
+  // project forward 6 months with readable labels
+  const projData=new Array(liveLabels.length).fill(null);
+  const projLabels=[...liveLabels];
+  const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for(let i=1;i<=6;i++){
+    const d=new Date(); d.setMonth(d.getMonth()+i);
+    projLabels.push(MONTHS_SHORT[d.getMonth()]+' '+d.getFullYear());
+    projData.push(projRevenue);
+  }
+  if(overviewChart)overviewChart.destroy();
+  overviewChart=new Chart(ctx,{type:'bar',data:{labels:projLabels,datasets:[
+    {label:'Actual revenue',data:[...liveRev,...new Array(6).fill(null)],backgroundColor:'rgba(110,214,122,.5)',borderColor:'#6ed67a',borderWidth:1.5,borderRadius:4},
+    {label:'Employee payroll',data:[...liveComm,...new Array(6).fill(null)],backgroundColor:'rgba(90,180,240,.4)',borderColor:'#5ab4f0',borderWidth:1.5,borderRadius:4},
+    {label:'Chargebacks',data:[...liveCB,...new Array(6).fill(null)],backgroundColor:'rgba(240,90,90,.4)',borderColor:'#f05a5a',borderWidth:1.5,borderRadius:4},
+    {label:'Projected revenue',data:projData,backgroundColor:'rgba(200,240,110,.15)',borderColor:'#c8f06e',borderWidth:1.5,borderDash:[4,4],borderRadius:4,type:'line',tension:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:chartTooltipBg(),borderColor:'rgba(128,128,128,.15)',borderWidth:1,titleColor:chartTooltipTitle(),bodyColor:chartTooltipBody()}},scales:{x:{ticks:{color:chartTickColor(),font:{family:"'DM Mono',monospace",size:10}},grid:{display:false}},y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}}}}});
+}
+
+function buildMonthlyChart(monthly){
+  const ctx=document.getElementById('monthlyChart'); if(!ctx)return;
+  const labels=monthly.map(m=>m.label||m.month);
+  const rev=monthly.map(m=>m.revenue);
+  const comm=monthly.map(m=>m.commission);
+  const profit=monthly.map(m=>m.profit);
+  if(monthlyChart)monthlyChart.destroy();
+  monthlyChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[
+    {label:'Sterling Oak Revenue',data:rev,backgroundColor:'rgba(110,214,122,.5)',borderColor:'#6ed67a',borderWidth:1.5,borderRadius:4},
+    {label:'Employee Payroll',data:comm,backgroundColor:'rgba(90,180,240,.4)',borderColor:'#5ab4f0',borderWidth:1.5,borderRadius:4},
+    {label:'Net Profit',data:profit,backgroundColor:'rgba(200,240,110,.3)',borderColor:'#c8f06e',borderWidth:1.5,borderRadius:4,type:'line',tension:0.3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:chartTooltipBg(),borderColor:'rgba(128,128,128,.15)',borderWidth:1,bodyColor:chartTooltipBody(),callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toLocaleString()}}},scales:{x:{ticks:{color:chartTickColor(),font:{family:"'DM Mono',monospace",size:10}},grid:{display:false}},y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}}}}});
+}
+
+// ════════════════════════════════════════════
+// LIVE DATA
+// ════════════════════════════════════════════
+function getScriptUrl(){
+  return localStorage.getItem('profitmap_script_url')||'';
+}
+
+function saveAndConnect(){
+  const url=document.getElementById('script-url').value.trim();
+  if(!url){showConnectError('Please enter a URL');return;}
+  localStorage.setItem('profitmap_script_url',url);
+  fetchLiveData();
+}
+
+function saveAndConnectFromSettings(){
+  const url=document.getElementById('script-url-settings').value.trim();
+  if(!url){document.getElementById('settings-status').textContent='Please enter a URL';return;}
+  localStorage.setItem('profitmap_script_url',url);
+  fetchLiveData();
+  document.getElementById('settings-status').textContent='Connecting...';
+}
+
+function clearConnection(){
+  localStorage.removeItem('profitmap_script_url');
+  liveData=null;
+  setConnectionState(false);
+  document.getElementById('settings-status').textContent='Disconnected';
+  if(autoRefreshTimer){clearInterval(autoRefreshTimer);autoRefreshTimer=null;}
+}
+
+function showConnectError(msg){
+  const el=document.getElementById('connect-error');
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+
+function setConnectionState(connected){
+  const dot=document.getElementById('live-dot');
+  const box=document.getElementById('connect-box-wrap');
+  const liveWrap=document.getElementById('live-data-wrap');
+  if(dot) dot.className='live-dot'+(connected?' live':' error');
+  if(box) box.style.display=connected?'none':'block';
+  if(liveWrap) liveWrap.style.display=connected?'block':'none';
+}
+
+async function fetchLiveData(){
+  const url=getScriptUrl(); if(!url) return;
+  const btn=document.getElementById('sync-btn');
+  if(btn) btn.classList.add('spinning');
+
+  // Clear stale data immediately — user never sees old numbers while fetching
+  liveData = null;
+  clearLiveUI();
+
+  try {
+    // POST request bypasses ALL browser and CDN caching
+    // — the only way to guarantee deleted rows are gone
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 't=' + Date.now()   // timestamp payload ensures uniqueness
+    });
+
+    // Apps Script redirects POST → GET in some deployments; follow it
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(parseErr) {
+      throw new Error('Bad response from Apps Script — redeploy and try again');
+    }
+
+    if(data.error){
+      throw new Error('Script error: ' + data.error + (data.line ? ' (line '+data.line+')' : ''));
+    }
+
+    liveData = data;
+    lastSyncTime = Date.now();
+    setConnectionState(true);
+
+    renderLiveData(data);
+
+
+
+    const now = new Date().toLocaleTimeString();
+    const dealCount = (data.totalDeals||0) + (data.totalCBDeals||0);
+    const lbl = document.getElementById('last-sync-label');
+    if(lbl) lbl.textContent = 'Synced at ' + now + ' · ' + data.totalDeals + ' deals · ' + (data.totalCBDeals||0) + ' chargebacks';
+    const sl = document.getElementById('settings-last-sync');
+    if(sl) sl.textContent = now;
+    const ss = document.getElementById('settings-status');
+    if(ss) ss.textContent = '✓ Live — ' + now + ' · ' + data.sheetLastRow + ' rows read';
+
+    // Remove stale warning if present
+    const warn = document.getElementById('stale-warning');
+    if(warn) warn.remove();
+
+    // Auto-refresh every 30 seconds — fast enough to catch deletions promptly
+    if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(fetchLiveData, 30 * 1000);
+
+  } catch(err){
+    const dot = document.getElementById('live-dot');
+    if(dot) dot.className = 'live-dot error';
+    const msg = err.message;
+    showConnectError('✗ ' + msg);
+    const ss = document.getElementById('settings-status');
+    if(ss) ss.textContent = '✗ ' + msg;
+    // Retry in 30s
+    if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setTimeout(fetchLiveData, 30 * 1000);
+  } finally {
+    if(btn) btn.classList.remove('spinning');
+  }
+}
+
+// Wipes all live UI panels back to empty state before a fresh fetch
+function clearLiveUI(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  ['live-revenue','live-commission','live-profit','live-deals','live-avg',
+   'ld-total-rev','ld-total-comm','ld-total-profit','ld-total-deals'].forEach(id=>set(id,'—'));
+  const tbody=document.getElementById('deals-tbody');
+  if(tbody) tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-family:\'DM Mono\',monospace;font-size:12px;">Fetching latest data...</td></tr>';
+  const empBars=document.getElementById('emp-full-bars');
+  if(empBars) empBars.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Loading...</div>';
+  const avp=document.getElementById('avp-card');
+  if(avp) avp.innerHTML='<div style="font-size:13px;color:var(--text3);">Syncing with sheet...</div>';
+}
+
+// Show a visible stale warning banner if data is older than 2 minutes
+function checkStaleness(){
+  if(!lastSyncTime || !liveData) return;
+  const age = (Date.now() - lastSyncTime) / 1000;
+  if(age > 120){
+    let warn = document.getElementById('stale-warning');
+    if(!warn){
+      warn = document.createElement('div');
+      warn.id = 'stale-warning';
+      warn.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#23272d;border:1px solid rgba(240,168,58,.4);color:#f0a83a;font-family:\'DM Mono\',monospace;font-size:12px;padding:10px 16px;border-radius:10px;z-index:999;display:flex;align-items:center;gap:10px;';
+      warn.innerHTML = '⚠ Data may be stale · <button onclick="fetchLiveData()" style="background:none;border:none;color:#f0a83a;font-family:\'DM Mono\',monospace;font-size:12px;cursor:pointer;text-decoration:underline;padding:0;">Sync now</button>';
+      document.body.appendChild(warn);
+    }
+  }
+}
+
+// Check staleness every 30 seconds
+setInterval(checkStaleness, 30 * 1000);
+// Also re-fetch whenever the tab becomes visible again after being hidden
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && getScriptUrl()) {
+    fetchLiveData();
+  }
+});
+
+function renderLiveData(data){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+
+  // ── All-time totals ───────────────────────────────────
+  set('ld-total-rev',   fmt(data.totalRevenue));
+  set('ld-total-comm',  fmt(data.totalCommission));
+  const tpEl=document.getElementById('ld-total-profit');
+  if(tpEl){tpEl.textContent=fmt(data.totalProfit);tpEl.className='metric-value '+(data.totalProfit>=0?'green':'red');}
+  set('ld-total-deals', data.totalDeals);
+
+  // ── This month stats ──────────────────────────────────
+  const thisMonth=data.monthly.length>0?data.monthly[data.monthly.length-1]:null;
+  if(thisMonth){
+    const monthLbl = thisMonth.label || thisMonth.month;
+    set('live-revenue',    fmt(thisMonth.revenue));
+    set('live-commission', fmt(thisMonth.commission));
+    const lpEl=document.getElementById('live-profit');
+    if(lpEl){lpEl.textContent=fmt(thisMonth.profit);lpEl.className='metric-value '+(thisMonth.profit>=0?'green':'red');}
+    set('live-deals',           thisMonth.deals);
+    set('live-avg',             thisMonth.deals>0?fmt(thisMonth.revenue/thisMonth.deals):'—');
+    set('live-revenue-proj',    monthLbl+' · proj: —');
+    set('live-commission-proj', monthLbl);
+    set('live-profit-proj',     monthLbl);
+    set('live-deals-sub',       monthLbl);
+
+    // ── Chargeback section (this month) ──────────────────
+    const cbSec       = document.getElementById('cb-alert-sec');
+    const cbDeals      = thisMonth.cbDeals      || 0;
+    const cbRevenue    = thisMonth.cbRevenue    || 0;
+    const cbCommission = thisMonth.cbCommission || 0;
+    const totalAll     = thisMonth.deals + cbDeals;
+    const cbRate       = totalAll > 0 ? ((cbDeals/totalAll)*100).toFixed(1)+'%' : '0%';
+
+    if(cbSec){
+      cbSec.style.display = cbDeals > 0 ? 'block' : 'none';
+      set('cb-badge',         cbDeals);
+      set('ov-cb-revenue',    fmt(cbRevenue));
+      set('ov-cb-commission', fmt(cbCommission));
+      set('ov-cb-deals',      cbDeals);
+      set('ov-cb-rate',       cbRate);
+    }
+
+    // Chargeback employee bars — this month only
+    const cbEmpMonth = (data.employees||[])
+      .map(e=>{
+        const bm=(e.byMonth||[]).find(m=>m.key===thisMonth.key);
+        return {name:e.name, cbDeals:bm?bm.cbDeals:0, cbCommission:bm?bm.cbCommission:0, cbRevenue:bm?bm.cbRevenue:0};
+      })
+      .filter(e=>e.cbDeals>0)
+      .sort((a,b)=>b.cbDeals-a.cbDeals);
+    renderCBEmpBars(cbEmpMonth, 'cb-emp-bars-month');
+
+    // Recent chargebacks table — this month
+    const cbTbody = document.getElementById('cb-recent-tbody');
+    if(cbTbody){
+      const monthCBs = (data.recentChargebacks||[]).filter(d=>d.month===thisMonth.key);
+      cbTbody.innerHTML = monthCBs.length===0
+        ? '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:12px;font-family:\'DM Mono\',monospace;font-size:11px;">No chargebacks this month ✓</td></tr>'
+        : monthCBs.map(d=>`<tr>
+            <td class="mono">${d.date||'—'}</td>
+            <td>${d.employee||'—'}</td>
+            <td>${d.client||'—'}</td>
+            <td style="font-family:'DM Mono',monospace;color:var(--red);">-${fmt(d.commission)}</td>
+            <td style="font-family:'DM Mono',monospace;color:var(--red);">-${fmt(d.revenue)}</td>
+          </tr>`).join('');
+    }
+  }
+
+  // ── Monthly chart ─────────────────────────────────────
+  if(data.monthly.length>0) buildMonthlyChart(data.monthly);
+
+  // ── Deals table (cleared + pending) ──────────────────
+  const tbody=document.getElementById('deals-tbody');
+  if(tbody){
+    const allDeals=data.recentDeals||[];
+    tbody.innerHTML = allDeals.length===0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">No deals found</td></tr>'
+      : allDeals.map(d=>`<tr>
+          <td class="mono">${d.date||'—'}<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">${d.monthLabel||''}</div></td>
+          <td>${d.employee||'—'}</td>
+          <td>${d.client||'—'}</td>
+          <td class="blue">${fmt(d.commission)}</td>
+          <td class="green">${fmt(d.revenue)}</td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;${d.status==='Pending'?'background:rgba(240,168,58,.12);color:#f0a83a;':'background:rgba(110,214,122,.1);color:#6ed67a;'}">${d.status||'Cleared'}</span></td>
+        </tr>`).join('');
+  }
+
+  // ── Employee bars + selectors ─────────────────────────
+  renderEmpBars(data.employees, 'emp-bars', 3);
+  populateEmpSelectors(data);
+  renderEmpSpotlight();
+  // Refresh admin leaderboard if it's the active tab
+  renderAdminLeaderboard(data, currentAdminLBPeriod);
+  update();
+}
+
+function renderEmpBars(employees, containerId, limit){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  if(!employees||employees.length===0){
+    container.innerHTML='<div style="font-size:13px;color:var(--text3);">No employee data</div>';
+    return;
+  }
+  const top=employees.slice(0,limit);
+  const max=top[0].commission||1;
+  container.innerHTML=top.map(e=>`
+    <div class="emp-row" style="cursor:pointer;" onclick="selectEmployee('${e.name.replace(/'/g,"\\'")}')">
+      <div class="emp-name">${e.name}</div>
+      <div class="emp-bar-wrap"><div class="emp-bar-fill" style="width:${(e.commission/max*100).toFixed(1)}%"></div></div>
+      <div class="emp-amount">${fmt(e.commission)}</div>
+      <div class="emp-deals">${e.deals} deals</div>
+    </div>`).join('');
+}
+
+function renderCBEmpBars(employees, containerId){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  if(!employees||employees.length===0){
+    container.innerHTML='<div style="font-size:13px;color:var(--text3);font-family:\'DM Mono\',monospace;">No chargebacks this month ✓</div>';
+    return;
+  }
+  const max=employees[0].cbDeals||1;
+  container.innerHTML=employees.map(e=>`
+    <div class="emp-row">
+      <div class="emp-name" style="color:var(--text);">${e.name}</div>
+      <div class="emp-bar-wrap"><div class="emp-bar-fill" style="width:${(e.cbDeals/max*100).toFixed(1)}%;background:var(--red);"></div></div>
+      <div class="emp-amount" style="color:var(--red);">-${fmt(e.cbRevenue)}</div>
+      <div class="emp-deals" style="color:var(--red);">${e.cbDeals} CB</div>
+    </div>`).join('');
+}
+
+function populateEmpSelectors(data){
+  // Month selector
+  const mSel=document.getElementById('emp-month-select');
+  if(mSel){
+    const existing=Array.from(mSel.options).map(o=>o.value);
+    data.monthly.forEach(m=>{
+      if(!existing.includes(m.key)){
+        const opt=document.createElement('option');
+        opt.value=m.key; opt.textContent=m.label;
+        mSel.appendChild(opt);
+      }
+    });
+    // default to most recent month
+    if(mSel.options.length>1) mSel.value=data.monthly[data.monthly.length-1].key;
+  }
+  // Employee selector
+  const eSel=document.getElementById('emp-name-select');
+  if(eSel){
+    const existing=Array.from(eSel.options).map(o=>o.value);
+    data.employees.forEach(e=>{
+      if(!existing.includes(e.name)){
+        const opt=document.createElement('option');
+        opt.value=e.name; opt.textContent=e.name;
+        eSel.appendChild(opt);
+      }
+    });
+  }
+}
+
+function selectEmployee(name){
+  const eSel=document.getElementById('emp-name-select');
+  if(eSel) eSel.value=name;
+  renderEmpSpotlight();
+}
+
+function renderEmpSpotlight(){
+  if(!liveData) return;
+  const monthKey = document.getElementById('emp-month-select')?.value || 'all';
+  const empName  = document.getElementById('emp-name-select')?.value  || 'all';
+
+  // ── Build filtered employee list for leaderboard ──────
+  let employees = liveData.employees.map(e => {
+    if(monthKey==='all'){
+      return { name:e.name, commission:e.commission, revenue:e.revenue, deals:e.deals };
+    } else {
+      const bm = (e.byMonth||[]).find(m=>m.key===monthKey);
+      return { name:e.name,
+        commission: bm?bm.commission:0,
+        revenue:    bm?bm.revenue:0,
+        deals:      bm?bm.deals:0 };
+    }
+  }).filter(e=>e.deals>0 || e.commission>0)
+    .sort((a,b)=>b.commission-a.commission);
+
+  // board label
+  const monthLabel = monthKey==='all' ? 'all time' :
+    (liveData.monthly.find(m=>m.key===monthKey)||{label:monthKey}).label;
+  const empLabel = empName==='all' ? 'all employees' : empName;
+  const boardLbl = document.getElementById('emp-board-label');
+  if(boardLbl) boardLbl.textContent = empLabel + ' — ' + monthLabel;
+
+  // render leaderboard
+  renderEmpBars(employees, 'emp-full-bars', employees.length);
+
+  // ── Spotlight card ─────────────────────────────────────
+  const card = document.getElementById('emp-spotlight-card');
+  if(!card) return;
+
+  if(empName==='all'){
+    card.style.display='none';
+    return;
+  }
+  card.style.display='block';
+
+  const emp = liveData.employees.find(e=>e.name===empName);
+  if(!emp){ card.style.display='none'; return; }
+
+  // Stats for selected period
+  let spComm, spRev, spDeals, spPeriod;
+  if(monthKey==='all'){
+    spComm=emp.commission; spRev=emp.revenue; spDeals=emp.deals; spPeriod='all time';
+  } else {
+    const bm=(emp.byMonth||[]).find(m=>m.key===monthKey)||{commission:0,revenue:0,deals:0};
+    spComm=bm.commission; spRev=bm.revenue; spDeals=bm.deals; spPeriod=monthLabel;
+  }
+
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('sp-commission', fmt(spComm));
+  set('sp-revenue',    fmt(spRev));
+  set('sp-deals',      spDeals);
+  set('sp-avg',        spDeals>0 ? fmt(spComm/spDeals) : '—');
+  set('sp-period',     spPeriod);
+  set('sp-period2',    spPeriod);
+  set('sp-period3',    spPeriod);
+  set('sp-chart-label', empName + ' — monthly breakdown');
+  set('sp-deals-label', empName + ' — recent deals');
+
+  // ── Spotlight chart ────────────────────────────────────
+  const byMonth = emp.byMonth || [];
+  const chartLabels = byMonth.map(m=>m.label);
+  const chartComm   = byMonth.map(m=>m.commission);
+  const chartRev    = byMonth.map(m=>m.revenue);
+
+  if(spotlightChart) spotlightChart.destroy();
+  const ctx=document.getElementById('sp-chart');
+  if(ctx && byMonth.length>0){
+    spotlightChart=new Chart(ctx,{
+      type:'bar',
+      data:{labels:chartLabels,datasets:[
+        {label:'Commission',data:chartComm,backgroundColor:'rgba(180,159,252,.5)',borderColor:'#b49ffc',borderWidth:1.5,borderRadius:4},
+        {label:'Revenue',data:chartRev,backgroundColor:'rgba(110,214,122,.35)',borderColor:'#6ed67a',borderWidth:1.5,borderRadius:4,type:'line',tension:0.3,fill:false}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{backgroundColor:chartTooltipBg(),borderColor:'rgba(128,128,128,.15)',borderWidth:1,bodyColor:chartTooltipBody(),callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},
+        scales:{x:{ticks:{color:chartTickColor(),font:{family:"'DM Mono',monospace",size:10}},grid:{display:false}},
+                y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}}}}
+    });
+  } else if(ctx){
+    ctx.parentElement.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:40px;">No monthly data available</div>';
+  }
+
+  // ── Spotlight deals table ──────────────────────────────
+  const tbody=document.getElementById('sp-deals-tbody');
+  if(tbody){
+    let empDeals=liveData.recentDeals.filter(d=>d.employee===empName);
+    if(monthKey!=='all') empDeals=empDeals.filter(d=>d.month===monthKey);
+    if(empDeals.length===0){
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px;">No deals found for this period</td></tr>';
+    } else {
+      tbody.innerHTML=empDeals.map(d=>`
+        <tr>
+          <td class="mono">${d.date||'—'}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);">${d.monthLabel||d.month||'—'}</td>
+          <td>${d.client||'—'}</td>
+          <td class="blue">${fmt(d.commission)}</td>
+          <td class="green">${fmt(d.revenue)}</td>
+        </tr>`).join('');
+    }
+  }
+}
+
+function updateAvP(projRevenue, projCosts){
+  const card=document.getElementById('avp-card'); if(!card)return;
+  if(!liveData){
+    card.innerHTML='<div style="font-size:13px;color:var(--text3);">Connect your sheet to see live comparisons</div>';
+    return;
+  }
+  const thisMonth=liveData.monthly.length>0?liveData.monthly[liveData.monthly.length-1]:null;
+  if(!thisMonth){card.innerHTML='<div style="font-size:13px;color:var(--text3);">No monthly data yet</div>';return;}
+  const rows=[
+    {label:'Revenue',actual:thisMonth.revenue,proj:projRevenue},
+    {label:'Payroll',actual:thisMonth.commission,proj:projCosts*0.3},
+    {label:'Net profit',actual:thisMonth.profit,proj:projRevenue-projCosts},
+  ];
+  card.innerHTML='<div style="font-size:11px;color:var(--text3);font-family:\'DM Mono\',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Actual vs projected — '+(thisMonth.label||thisMonth.month)+'</div>'
+    +rows.map(r=>{
+      const diff=r.actual-r.proj;
+      const pct=r.proj?((diff/r.proj)*100).toFixed(1):0;
+      const cls=diff>=0?'pos':'neg';
+      return `<div class="avp-row">
+        <div class="avp-label">${r.label}</div>
+        <div class="avp-actual">${fmt(r.actual)}</div>
+        <div class="avp-proj" style="font-family:'DM Mono',monospace;color:var(--text3);min-width:90px;">proj ${fmt(r.proj)}</div>
+        <div class="avp-diff ${cls}">${diff>=0?'+':''}${pct}%</div>
+      </div>`;
+    }).join('');
+}
+
+// ════════════════════════════════════════════
+// SCENARIOS
+// ════════════════════════════════════════════
+function setActive(name){
+  document.querySelectorAll('.schip').forEach(c=>c.classList.toggle('active',c.dataset.sc===name));
+}
+
+function applyScenario(name){
+  const s=scenarios[name]; if(!s)return;
+  const oopEl=document.getElementById('oop');
+  const sbaEl=document.getElementById('sba');
+  if(oopEl){ oopEl.value=s.oop.toLocaleString(); formatCapitalInput('oop','oop-out'); }
+  if(sbaEl){ sbaEl.value=s.sba.toLocaleString(); formatCapitalInput('sba','sba-out'); }
+  document.getElementById('clients').value = s.clients;
+  document.getElementById('inv-fee').value=s.invFee;
+  document.getElementById('res-fee').value=s.resFee;
+  document.getElementById('split').value=s.split;
+  const ls=document.getElementById('leads-slider');
+  const ss=document.getElementById('sms-slider');
+  if(ls){ls.value=s.leads;const ll=document.getElementById('leads-lbl');if(ll)ll.textContent=fmtLeads(s.leads);}
+  if(ss){ss.value=s.smsPerLead;const sl=document.getElementById('sms-lbl');if(sl)sl.textContent=s.smsPerLead+' texts/lead';}
+  update();
+}
+
+function saveScenario(){
+  const v=getSV();
+  const name=prompt('Name this scenario:'); if(!name)return;
+  const key=name.toLowerCase().replace(/\s+/g,'-');
+  scenarios[key]={oop:v.oop,sba:v.sba,leads:v.leads,smsPerLead:v.sms,clients:v.clients,invFee:v.invFee,resFee:v.resFee,split:Math.round(v.split*100)};
+  const list=document.getElementById('scenario-list');
+  const chip=document.createElement('div');
+  chip.className='schip';chip.dataset.sc=key;chip.textContent=name;
+  chip.addEventListener('click',()=>{setActive(key);applyScenario(key);});
+  list.appendChild(chip);
+}
+
+document.querySelectorAll('.schip').forEach(c=>{
+  c.addEventListener('click',()=>{setActive(c.dataset.sc);applyScenario(c.dataset.sc);});
+});
+
+['inv-fee','res-fee','split','loan-rate','inv-split'].forEach(id=>{
+  const el=document.getElementById(id); if(el)el.addEventListener('input',update);
+});
+
+document.getElementById('new-cost-amt').addEventListener('keydown',e=>{if(e.key==='Enter')addCostRow();});
+document.getElementById('new-cost-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('new-cost-amt').focus();});
+
+// ════════════════════════════════════════════
+// YEAR ARCHIVE SYSTEM
+// ════════════════════════════════════════════
+const ARCHIVE_KEY = 'profitmap_archive';
+let archiveCharts = { yoy: null, monthly: null };
+let currentArchiveYear = null;
+let noteDebounceTimer = null;
+
+function loadArchive(){
+  const raw = localStorage.getItem(ARCHIVE_KEY);
+  return raw ? JSON.parse(raw) : {};
+}
+
+function saveArchive(archive){
+  localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+}
+
+// ── Build snapshot from current live data + projections ──────
+function buildSnapshot(){
+  const year = new Date().getFullYear();
+  const v    = getSV();
+  const totalCosts = costs.reduce((s,c)=>s+c.amount, 0);
+  const resNetPer  = v.resFee * v.split;
+  const projRevenue = v.clients * resNetPer;
+
+  const snap = {
+    year,
+    savedAt:   new Date().toISOString(),
+    notes:     '',
+    // Live data snapshot
+    live: liveData ? {
+      totalRevenue:    liveData.totalRevenue,
+      totalCommission: liveData.totalCommission,
+      totalProfit:     liveData.totalProfit,
+      totalDeals:      liveData.totalDeals,
+      totalCBDeals:    liveData.totalCBDeals,
+      totalCBRevenue:  liveData.totalCBRevenue,
+      monthly:         liveData.monthly,
+      employees:       liveData.employees.map(e=>({
+        name:         e.name,
+        commission:   e.commission,
+        revenue:      e.revenue,
+        deals:        e.deals,
+        cbDeals:      e.cbDeals,
+        cbRevenue:    e.cbRevenue
+      }))
+    } : null,
+    // Projections snapshot
+    projections: {
+      initialCapital:  v.oop,
+      loanAmount:      v.sba,
+      loanRate:        v.loanRate,
+      loanTerm:        v.loanTerm,
+      leadsPerMonth:   v.leads,
+      costPerLead:     v.leadsRate,
+      clientsPerMonth: v.clients,
+      invFee:          v.invFee,
+      resFee:          v.resFee,
+      split:           Math.round(v.split*100),
+      monthlyRevenue:  Math.round(projRevenue),
+      monthlyCosts:    Math.round(totalCosts),
+      monthlyProfit:   Math.round(projRevenue - totalCosts)
+    },
+    costs: costs.map(c=>({ name:c.name, amount:Math.round(c.amount) }))
+  };
+  return snap;
+}
+
+function saveYearSnapshot(){
+  const snap    = buildSnapshot();
+  const archive = loadArchive();
+  const year    = snap.year.toString();
+
+  // Preserve existing notes if re-saving same year
+  if(archive[year]?.notes) snap.notes = archive[year].notes;
+
+  archive[year] = snap;
+  saveArchive(archive);
+
+  renderArchiveTab();
+  selectArchiveYear(year);
+
+  // Flash confirmation
+  const btn = document.getElementById('snapshot-btn');
+  if(btn){
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Saved!';
+    btn.style.color = 'var(--green)';
+    setTimeout(()=>{ btn.innerHTML=orig; btn.style.color=''; }, 2000);
+  }
+}
+
+// ── Render the whole archive tab ──────────────────────────────
+function renderArchiveTab(){
+  const archive  = loadArchive();
+  const years    = Object.keys(archive).sort().reverse();
+  const curYear  = new Date().getFullYear().toString();
+
+  // Update snapshot button year label
+  const yl = document.getElementById('snapshot-year-label');
+  if(yl) yl.textContent = curYear;
+
+  // Year tabs
+  const tabsEl = document.getElementById('year-tabs');
+  if(tabsEl){
+    if(years.length === 0){
+      tabsEl.innerHTML = '';
+    } else {
+      tabsEl.innerHTML = years.map(y=>`
+        <button class="year-tab ${y===curYear?'current':''} ${y===currentArchiveYear?'active':''}"
+          onclick="selectArchiveYear('${y}')">${y}${y===curYear?' (current)':''}</button>`).join('');
+    }
+  }
+
+  const emptyEl   = document.getElementById('archive-empty');
+  const contentEl = document.getElementById('archive-content');
+  if(years.length === 0){
+    if(emptyEl)   emptyEl.style.display   = 'block';
+    if(contentEl) contentEl.style.display = 'none';
+  } else {
+    if(emptyEl)   emptyEl.style.display   = 'none';
+    if(contentEl) contentEl.style.display = 'block';
+    if(!currentArchiveYear || !archive[currentArchiveYear]){
+      selectArchiveYear(years[0]);
+    } else {
+      renderArchiveYear(archive[currentArchiveYear], archive);
+    }
+  }
+  updateStorageMeter();
+}
+
+function selectArchiveYear(year){
+  currentArchiveYear = year;
+  document.querySelectorAll('.year-tab').forEach(t=>{
+    t.classList.toggle('active', t.textContent.startsWith(year));
+  });
+  const archive = loadArchive();
+  if(archive[year]) renderArchiveYear(archive[year], archive);
+}
+
+function renderArchiveYear(snap, archive){
+  const years   = Object.keys(archive).sort();
+  const yi      = years.indexOf(snap.year.toString());
+  const prevSnap = yi > 0 ? archive[years[yi-1]] : null;
+
+  // Labels
+  ['arch-year-label','arch-monthly-label','arch-emp-label'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = snap.year;
+  });
+
+  // ── KPI cards ─────────────────────────────────────────────
+  const strip = document.getElementById('arch-kpi-strip');
+  if(strip && snap.live){
+    const l = snap.live;
+    const p = prevSnap?.live;
+    const kpis = [
+      { label:'Total Revenue',    value:l.totalRevenue,    prev:p?.totalRevenue,    color:'green', fmt:fmt },
+      { label:'Total Payroll',    value:l.totalCommission, prev:p?.totalCommission, color:'blue',  fmt:fmt },
+      { label:'Net Profit',       value:l.totalProfit,     prev:p?.totalProfit,     color:l.totalProfit>=0?'green':'red', fmt:fmt },
+      { label:'Deals Closed',     value:l.totalDeals,      prev:p?.totalDeals,      color:'neutral', fmt:n=>n },
+      { label:'Chargebacks',      value:l.totalCBDeals,    prev:p?.totalCBDeals,    color:l.totalCBDeals>0?'red':'green', fmt:n=>n }
+    ];
+    strip.innerHTML = kpis.map(k=>{
+      const chg = k.prev != null && k.prev > 0
+        ? ((k.value - k.prev) / k.prev * 100).toFixed(1)
+        : null;
+      const chgHtml = chg != null
+        ? `<div class="change ${+chg>0?'up':+chg<0?'down':'flat'}">${+chg>0?'▲':'▼'} ${Math.abs(chg)}% vs ${snap.year-1}</div>`
+        : `<div class="change flat">No prior year data</div>`;
+      return `<div class="arch-kpi">
+        <div class="label">${k.label}</div>
+        <div class="value ${k.color}">${k.fmt(k.value)}</div>
+        ${chgHtml}
+      </div>`;
+    }).join('');
+  } else if(strip){
+    // Projections only
+    const pr = snap.projections;
+    strip.innerHTML = `
+      <div class="arch-kpi"><div class="label">Proj. Revenue</div><div class="value green">${fmt(pr.monthlyRevenue)}/mo</div><div class="change flat">projection</div></div>
+      <div class="arch-kpi"><div class="label">Proj. Costs</div><div class="value neutral">${fmt(pr.monthlyCosts)}/mo</div><div class="change flat">projection</div></div>
+      <div class="arch-kpi"><div class="label">Proj. Profit</div><div class="value ${pr.monthlyProfit>=0?'green':'red'}">${fmt(pr.monthlyProfit)}/mo</div><div class="change flat">projection</div></div>
+      <div class="arch-kpi"><div class="label">Initial Capital</div><div class="value neutral">${fmtCapital(pr.initialCapital)}</div><div class="change flat">snapshot</div></div>
+      <div class="arch-kpi"><div class="label">Loan Amount</div><div class="value amber">${fmtCapital(pr.loanAmount)}</div><div class="change flat">snapshot</div></div>`;
+  }
+
+  // ── YoY chart ──────────────────────────────────────────────
+  const yoySec = document.getElementById('yoy-sec');
+  if(yoySec && years.length >= 2){
+    yoySec.style.display = 'block';
+    buildYoYChart(archive, years);
+  } else if(yoySec){
+    yoySec.style.display = 'none';
+  }
+
+  // ── Monthly breakdown chart ────────────────────────────────
+  if(snap.live?.monthly?.length > 0){
+    buildArchMonthlyChart(snap.live.monthly);
+  }
+
+  // ── Employee bars ──────────────────────────────────────────
+  const empEl = document.getElementById('arch-emp-bars');
+  if(empEl && snap.live?.employees?.length > 0){
+    const emps = [...snap.live.employees].sort((a,b)=>b.commission-a.commission);
+    const max  = emps[0].commission || 1;
+    empEl.innerHTML = emps.map(e=>`
+      <div class="emp-row">
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-bar-wrap"><div class="emp-bar-fill" style="width:${(e.commission/max*100).toFixed(1)}%"></div></div>
+        <div class="emp-amount">${fmt(e.commission)}</div>
+        <div class="emp-deals">${e.deals} deals${e.cbDeals>0?' · '+e.cbDeals+' CB':''}</div>
+      </div>`).join('');
+  } else if(empEl){
+    empEl.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 0;">No employee data in this snapshot</div>';
+  }
+
+  // ── Notes ─────────────────────────────────────────────────
+  const notesEl = document.getElementById('arch-notes');
+  if(notesEl) notesEl.value = snap.notes || '';
+  const infoEl  = document.getElementById('arch-snapshot-info');
+  if(infoEl) infoEl.textContent = 'Saved: ' + new Date(snap.savedAt).toLocaleString();
+}
+
+// ── YoY bar chart ─────────────────────────────────────────────
+function buildYoYChart(archive, years){
+  const ctx = document.getElementById('yoy-chart'); if(!ctx) return;
+  const labels   = years;
+  const revenues = years.map(y => archive[y]?.live?.totalRevenue    || 0);
+  const profits  = years.map(y => archive[y]?.live?.totalProfit     || 0);
+  const payrolls = years.map(y => archive[y]?.live?.totalCommission || 0);
+  const cbs      = years.map(y => archive[y]?.live?.totalCBRevenue  || 0);
+
+  // Legend
+  const legendEl = document.getElementById('yoy-legend');
+  if(legendEl) legendEl.innerHTML = `
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#6ed67a;display:inline-block;"></span>Revenue</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#5ab4f0;display:inline-block;"></span>Payroll</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#c8f06e;display:inline-block;"></span>Net Profit</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);"><span style="width:10px;height:10px;border-radius:2px;background:#f05a5a;display:inline-block;"></span>Chargebacks</span>`;
+
+  if(archiveCharts.yoy) archiveCharts.yoy.destroy();
+  archiveCharts.yoy = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label:'Revenue',     data:revenues, backgroundColor:'rgba(110,214,122,.5)', borderColor:'#6ed67a', borderWidth:1.5, borderRadius:4 },
+      { label:'Payroll',     data:payrolls, backgroundColor:'rgba(90,180,240,.4)',  borderColor:'#5ab4f0', borderWidth:1.5, borderRadius:4 },
+      { label:'Net Profit',  data:profits,  backgroundColor:'rgba(200,240,110,.35)',borderColor:'#c8f06e', borderWidth:1.5, borderRadius:4, type:'line', tension:0.3, fill:false },
+      { label:'Chargebacks', data:cbs,      backgroundColor:'rgba(240,90,90,.35)',  borderColor:'#f05a5a', borderWidth:1.5, borderRadius:4 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:chartTooltipBg(), borderColor:'rgba(128,128,128,.15)', borderWidth:1, bodyColor:chartTooltipBody(), callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},
+      scales:{ x:{ticks:{color:chartTickColor(),font:{family:"'DM Mono',monospace",size:12}},grid:{display:false}},
+               y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}}}}
+  });
+}
+
+// ── Monthly breakdown chart for archived year ─────────────────
+function buildArchMonthlyChart(monthly){
+  const ctx = document.getElementById('arch-monthly-chart'); if(!ctx) return;
+  if(archiveCharts.monthly) archiveCharts.monthly.destroy();
+  archiveCharts.monthly = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: monthly.map(m=>m.label||m.month),
+      datasets:[
+        { label:'Revenue',  data:monthly.map(m=>m.revenue),    backgroundColor:'rgba(110,214,122,.5)', borderColor:'#6ed67a', borderWidth:1.5, borderRadius:4 },
+        { label:'Payroll',  data:monthly.map(m=>m.commission), backgroundColor:'rgba(90,180,240,.4)',  borderColor:'#5ab4f0', borderWidth:1.5, borderRadius:4 },
+        { label:'Profit',   data:monthly.map(m=>m.profit),     backgroundColor:'rgba(200,240,110,.3)', borderColor:'#c8f06e', borderWidth:1.5, borderRadius:4, type:'line', tension:0.3, fill:false }
+      ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:chartTooltipBg(), borderColor:'rgba(128,128,128,.15)', borderWidth:1, bodyColor:chartTooltipBody(), callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},
+      scales:{ x:{ticks:{color:chartTickColor(),font:{family:"'DM Mono',monospace",size:10}},grid:{display:false}},
+               y:{ticks:{color:chartTickColor(),callback:v=>fmtK(v),font:{family:"'DM Mono',monospace",size:11}},grid:{color:chartGridColor()}}}}
+  });
+}
+
+// ── Notes auto-save ───────────────────────────────────────────
+function saveNoteDebounced(){
+  if(noteDebounceTimer) clearTimeout(noteDebounceTimer);
+  noteDebounceTimer = setTimeout(()=>{
+    if(!currentArchiveYear) return;
+    const archive = loadArchive();
+    if(archive[currentArchiveYear]){
+      archive[currentArchiveYear].notes = document.getElementById('arch-notes').value;
+      saveArchive(archive);
+      const infoEl = document.getElementById('arch-snapshot-info');
+      if(infoEl) infoEl.textContent = 'Notes saved at ' + new Date().toLocaleTimeString();
+    }
+  }, 800);
+}
+
+// ── Delete year ───────────────────────────────────────────────
+function deleteYearConfirm(){
+  if(!currentArchiveYear) return;
+  if(!confirm('Delete the '+currentArchiveYear+' snapshot? This cannot be undone.')) return;
+  const archive = loadArchive();
+  delete archive[currentArchiveYear];
+  saveArchive(archive);
+  currentArchiveYear = null;
+  renderArchiveTab();
+}
+
+// ── Export / Import ───────────────────────────────────────────
+function exportArchive(){
+  const archive  = loadArchive();
+  const blob     = new Blob([JSON.stringify(archive, null, 2)], {type:'application/json'});
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  a.href         = url;
+  a.download     = 'SterlingOak_Archive_' + new Date().getFullYear() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importArchive(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      const archive  = loadArchive();
+      Object.assign(archive, imported);
+      saveArchive(archive);
+      renderArchiveTab();
+      updateStorageMeter();
+      alert('Archive imported successfully — ' + Object.keys(imported).length + ' year(s) loaded.');
+    } catch(err) {
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── Storage meter ─────────────────────────────────────────────
+function getStorageBytes(){
+  let total = 0;
+  for(let k in localStorage){
+    if(!localStorage.hasOwnProperty(k)) continue;
+    total += (localStorage[k].length + k.length) * 2; // UTF-16 = 2 bytes per char
+  }
+  return total;
+}
+
+function getKeyBytes(key){
+  const val = localStorage.getItem(key);
+  if(!val) return 0;
+  return (val.length + key.length) * 2;
+}
+
+function fmtBytes(bytes){
+  if(bytes >= 1048576) return (bytes/1048576).toFixed(2) + ' MB';
+  if(bytes >= 1024)    return (bytes/1024).toFixed(1)    + ' KB';
+  return bytes + ' B';
+}
+
+async function updateStorageMeter(){
+  const MAX_BYTES   = 5 * 1024 * 1024;
+  const totalBytes  = getStorageBytes();
+  const archBytes   = getKeyBytes(ARCHIVE_KEY);
+  const pct         = Math.min(100, (totalBytes / MAX_BYTES) * 100);
+  const barColor    = pct > 80 ? '#f05a5a' : pct > 60 ? '#f0a83a' : '#6ed67a';
+  const archiveYears= Object.keys(loadArchive()).length;
+
+  // Try to get real storage estimate from browser API
+  let idbSize = '';
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      const est = await navigator.storage.estimate();
+      const used = est.usage||0;
+      const quota = est.quota||0;
+      idbSize = fmtBytes(used) + ' used of ' + fmtBytes(quota) + ' total browser quota';
+    }
+  }catch(e){}
+
+  const labelText  = fmtBytes(totalBytes) + ' / 5 MB localStorage (' + pct.toFixed(1) + '%)';
+  const detailText =
+    'Archive: ' + fmtBytes(archBytes) + ' (' + archiveYears + ' year' + (archiveYears!==1?'s':'') + ')' +
+    '  ·  Other app data: ' + fmtBytes(totalBytes - archBytes) +
+    (idbSize ? '  ·  Browser: ' + idbSize : '') +
+    (pct > 70 ? '  ·  ⚠ Export & clear archive soon' : '  ·  Storage healthy');
+
+  // ── Archive tab meter ─────────────────────────────────────
+  const bar    = document.getElementById('storage-bar');
+  const label  = document.getElementById('storage-label');
+  const detail = document.getElementById('storage-detail');
+  if(bar)   { bar.style.width = pct.toFixed(1)+'%'; bar.style.background = barColor; }
+  if(label)   label.textContent  = labelText;
+  if(detail)  detail.textContent = detailText;
+
+  // ── Settings tab meter ────────────────────────────────────
+  const bar2    = document.getElementById('storage-bar-settings');
+  const label2  = document.getElementById('storage-label-settings');
+  const detail2 = document.getElementById('storage-detail-settings');
+  if(bar2)   { bar2.style.width = pct.toFixed(1)+'%'; bar2.style.background = barColor; }
+  if(label2)   label2.textContent  = labelText;
+  if(detail2)  detail2.textContent = detailText;
+}
+
+// ── Export + Clear (recommended workflow) ─────────────────────
+function exportAndClearPrompt(){
+  const archive = loadArchive();
+  const years   = Object.keys(archive);
+  if(years.length === 0){
+    alert('No archive data to export.');
+    return;
+  }
+  const ok = confirm(
+    'This will:\n' +
+    '1. Download your archive (' + years.length + ' year' + (years.length!==1?'s':'') + ') as a .json file\n' +
+    '2. Clear the archive from local storage\n\n' +
+    'Your exported file is your permanent backup.\n' +
+    'Import it anytime to view historical data.\n\n' +
+    'Proceed?'
+  );
+  if(!ok) return;
+  exportArchive();
+  // Short delay so download starts before clearing
+  setTimeout(()=>{
+    localStorage.removeItem(ARCHIVE_KEY);
+    currentArchiveYear = null;
+    renderArchiveTab();
+    updateStorageMeter();
+    showStorageMsg('✓ Archive exported and cleared — storage freed', 'var(--green)');
+  }, 800);
+}
+
+// ── Clear archive only ────────────────────────────────────────
+function clearArchiveData(){
+  const archive = loadArchive();
+  const years   = Object.keys(archive);
+  if(years.length === 0){ alert('Archive is already empty.'); return; }
+
+  const ok = confirm(
+    '⚠ This will permanently delete ' + years.length + ' archived year' + (years.length!==1?'s':'') + ' from local storage.\n\n' +
+    'Make sure you have exported a backup first.\n\n' +
+    'Delete archive data?'
+  );
+  if(!ok) return;
+  localStorage.removeItem(ARCHIVE_KEY);
+  currentArchiveYear = null;
+  renderArchiveTab();
+  updateStorageMeter();
+  showStorageMsg('✓ Archive cleared — ' + fmtBytes(getStorageBytes()) + ' remaining', 'var(--green)');
+}
+
+// ── Clear ALL app data (nuclear option) ───────────────────────
+function clearAllAppData(){
+  const ok = confirm(
+    '⚠ DANGER — This clears ALL app data:\n' +
+    '• Year archive\n• Saved scenarios\n• Connection URL\n• User accounts\n• Theme preference\n\n' +
+    'Export your archive first!\n\n' +
+    'Type DELETE to confirm:'
+  );
+  if(!ok) return;
+  const confirm2 = prompt('Type DELETE to confirm complete data wipe:');
+  if(confirm2 !== 'DELETE'){ alert('Cancelled.'); return; }
+
+  // Export archive one last time before wipe
+  const archive = loadArchive();
+  if(Object.keys(archive).length > 0){
+    if(confirm('Export archive before wiping?')) exportArchive();
+  }
+
+  localStorage.clear();
+  alert('All app data cleared. Reloading...');
+  location.reload();
+}
+
+function showStorageMsg(msg, color){
+  const detail = document.getElementById('storage-detail');
+  if(detail){
+    const orig = detail.textContent;
+    detail.style.color = color;
+    detail.textContent = msg;
+    setTimeout(()=>{ detail.style.color=''; detail.textContent=orig; updateStorageMeter(); }, 3000);
+  }
+}
+
+// ── Auto-snapshot prompt on new year ─────────────────────────
+function checkNewYearPrompt(){
+  const lastPrompt = localStorage.getItem('profitmap_last_year_prompt');
+  const thisYear   = new Date().getFullYear().toString();
+  const lastYear   = (new Date().getFullYear() - 1).toString();
+  const archive    = loadArchive();
+
+  // If it's after Jan 1 and last year isn't archived yet, prompt once
+  if(lastPrompt !== thisYear && !archive[lastYear] && liveData){
+    localStorage.setItem('profitmap_last_year_prompt', thisYear);
+    setTimeout(()=>{
+      if(confirm('🎉 Happy New Year!\n\nWould you like to save the '+lastYear+' snapshot to the Year Archive before your data resets?')){
+        currentArchiveYear = null;
+        // Temporarily set year to last year for the snapshot
+        const snap    = buildSnapshot();
+        snap.year     = parseInt(lastYear);
+        const archive2 = loadArchive();
+        archive2[lastYear] = snap;
+        saveArchive(archive2);
+        renderArchiveTab();
+        alert('✓ '+lastYear+' archived successfully. Head to the Year Archive tab to view it.');
+      }
+    }, 2000);
+  }
+}
+
+// ════════════════════════════════════════════
+// AUTH SYSTEM
+// ════════════════════════════════════════════
+const SESSION_KEY  = 'profitmap_session';
+const USERS_KEY    = 'profitmap_users';
+const SESSION_TTL  = 8 * 60 * 60 * 1000; // 8 hours
+
+// SHA-256 hash using Web Crypto API
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Load users from localStorage — seed default admin if none exist
+function loadUsers(){
+  const raw = localStorage.getItem(USERS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveUsers(users){
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+// Seed the default admin on first run (password set below in init)
+async function seedDefaultAdmin(){
+  const users = loadUsers();
+  if(users.length === 0){
+    const hash = await sha256('SterlingOak2024!');
+    saveUsers([{ username:'admin', hash, role:'admin', created: Date.now() }]);
+  }
+}
+
+// ── Session management ────────────────────────────────────
+function getSession(){
+  const raw = localStorage.getItem(SESSION_KEY);
+  if(!raw) return null;
+  const s = JSON.parse(raw);
+  // Check TTL
+  if(Date.now() - s.loginTime > SESSION_TTL){
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+  return s;
+}
+
+function createSession(user){
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    username: user.username,
+    role:     user.role,
+    loginTime: Date.now()
+  }));
+}
+
+function clearSession(){
+  localStorage.removeItem(SESSION_KEY);
+}
+
+// ── UI gating ─────────────────────────────────────────────
+function showApp(session){
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('main-header').style.display   = '';
+  document.getElementById('main-nav').style.display      = '';
+  document.getElementById('main-content').style.display  = '';
+  const uEl = document.getElementById('header-username');
+  if(uEl) uEl.textContent = session.username + ' (' + session.role + ')';
+  renderUserList();
+}
+
+function showLogin(msg){
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('main-header').style.display   = 'none';
+  document.getElementById('main-nav').style.display      = 'none';
+  document.getElementById('main-content').style.display  = 'none';
+  if(msg){
+    const el = document.getElementById('login-error');
+    if(el){ el.textContent = msg; el.style.color = 'var(--red)'; }
+  }
+}
+
+// ── Login attempt ─────────────────────────────────────────
+async function attemptLogin(){
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const errEl    = document.getElementById('login-error');
+
+  if(!username || !password){
+    errEl.textContent = 'Please enter both username and password';
+    return;
+  }
+
+  errEl.textContent = 'Verifying...';
+  errEl.style.color = 'var(--text3)';
+
+  const hash  = await sha256(password);
+  const users = loadUsers();
+  const user  = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.hash === hash);
+
+  if(user && user.role === 'admin'){
+    createSession(user);
+    errEl.textContent = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-user').value = '';
+    showApp(getSession());
+    bootApp();
+  } else if(user && user.role !== 'admin'){
+    errEl.style.color = 'var(--amber)';
+    errEl.textContent = 'Admin access only — contact your administrator';
+  } else {
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = 'Incorrect username or password';
+    document.getElementById('login-pass').value = '';
+    const box = document.querySelector('.login-box');
+    box.style.animation='shake .3s ease';
+    setTimeout(()=>box.style.animation='',300);
+  }
+}
+
+function logout(){
+  clearSession();
+  showLogin();
+  // Clear live data for security
+  liveData = null;
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+}
+
+function togglePwVis(){
+  const inp = document.getElementById('login-pass');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── User management ───────────────────────────────────────
+async function addUser(){
+  const name = document.getElementById('new-user-name').value.trim();
+  const pass = document.getElementById('new-user-pass').value;
+  const role = document.getElementById('new-user-role').value;
+  const msg  = document.getElementById('user-mgmt-msg');
+
+  if(!name || !pass){
+    msg.style.color='var(--red)'; msg.textContent='Username and password required'; msg.style.display='block';
+    return;
+  }
+  if(pass.length < 8){
+    msg.style.color='var(--red)'; msg.textContent='Password must be at least 8 characters'; msg.style.display='block';
+    return;
+  }
+
+  const users = loadUsers();
+  if(users.find(u=>u.username.toLowerCase()===name.toLowerCase())){
+    msg.style.color='var(--red)'; msg.textContent='Username already exists'; msg.style.display='block';
+    return;
+  }
+
+  const hash = await sha256(pass);
+  users.push({ username:name, hash, role, created: Date.now() });
+  saveUsers(users);
+
+  document.getElementById('new-user-name').value = '';
+  document.getElementById('new-user-pass').value = '';
+  msg.style.color='var(--green)'; msg.textContent='✓ User "'+name+'" added'; msg.style.display='block';
+  setTimeout(()=>msg.style.display='none', 3000);
+  renderUserList();
+}
+
+async function changePassword(username){
+  const pass = prompt('New password for "'+username+'" (min 8 characters):');
+  if(!pass) return;
+  if(pass.length < 8){ alert('Password must be at least 8 characters'); return; }
+  const hash  = await sha256(pass);
+  const users = loadUsers().map(u => u.username===username ? {...u, hash} : u);
+  saveUsers(users);
+  const msg = document.getElementById('user-mgmt-msg');
+  msg.style.color='var(--green)'; msg.textContent='✓ Password updated for "'+username+'"'; msg.style.display='block';
+  setTimeout(()=>msg.style.display='none', 3000);
+}
+
+function deleteUser(username){
+  const session = getSession();
+  if(username === session?.username){ alert("You can't delete your own account"); return; }
+  if(!confirm('Delete user "'+username+'"?')) return;
+  const users = loadUsers().filter(u=>u.username!==username);
+  saveUsers(users);
+  renderUserList();
+}
+
+function renderUserList(){
+  const container = document.getElementById('user-list');
+  if(!container) return;
+  const users   = loadUsers();
+  const session = getSession();
+  if(users.length === 0){
+    container.innerHTML='<div style="padding:16px 18px;font-size:13px;color:var(--text3);">No users found</div>';
+    return;
+  }
+  container.innerHTML = users.map(u=>`
+    <div class="user-row">
+      <div class="uname">${u.username}${u.username===session?.username?' <span style="font-size:10px;color:var(--text3);">(you)</span>':''}</div>
+      <span class="urole ${u.role}">${u.role}</span>
+      <button class="icon-btn edit" onclick="changePassword('${u.username}')" title="Change password" style="font-size:12px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;color:var(--text3);">🔑 Reset pw</button>
+      <button class="icon-btn del" onclick="deleteUser('${u.username}')" ${u.username===session?.username?'disabled style="opacity:.3;"':''}>✕</button>
+    </div>`).join('');
+}
+
+// shake keyframe
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}';
+document.head.appendChild(shakeStyle);
+
+// ── Live clock ────────────────────────────────────────────
+function startPMClock(){
+  function tick(){
+    const n   = new Date();
+    const pad = x => String(x).padStart(2,'0');
+    const clockEl = document.getElementById('pm-clock');
+    const dateEl  = document.getElementById('pm-date');
+    if(clockEl) clockEl.textContent = pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+    if(dateEl)  dateEl.textContent  = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── Boot sequence ─────────────────────────────────────────
+function bootApp(){
+  loadCosts();
+  renderCosts();
+  update();
+  renderArchiveTab();
+  updateStorageMeter();
+  startPMClock();
+  const savedUrl = getScriptUrl();
+  if(savedUrl){
+    const sui = document.getElementById('script-url-settings');
+    if(sui) sui.value = savedUrl;
+    setTimeout(()=>{ fetchLiveData().then(()=>checkNewYearPrompt()); }, 300);
+  } else {
+    setTimeout(checkNewYearPrompt, 1000);
+  }
+}
+
+// ════════════════════════════════════════════
+// THEME TOGGLE
+// ════════════════════════════════════════════
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('profitmap_theme', isLight ? 'light' : 'dark');
+  updateThemeUI(isLight);
+  // Rebuild charts so their colors update
+  if(cashChart || overviewChart || monthlyChart || spotlightChart) update();
+  if(liveData) buildMonthlyChart(liveData.monthly);
+}
+
+function updateThemeUI(isLight){
+  const label = document.getElementById('theme-label');
+  const thumb  = document.getElementById('theme-thumb');
+  const sThumb = document.getElementById('settings-theme-thumb');
+  if(label) label.textContent = isLight ? 'Light' : 'Dark';
+  if(thumb)  thumb.textContent  = isLight ? '☀️' : '🌙';
+  if(sThumb) sThumb.textContent = isLight ? '☀️' : '🌙';
+}
+
+// Apply saved theme on load
+(function(){
+  const saved = localStorage.getItem('profitmap_theme');
+  if(saved === 'light'){
+    document.body.classList.add('light');
+    updateThemeUI(true);
+  }
+})();
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+// Apply saved theme before anything renders
+(async function(){
+  await seedDefaultAdmin();
+
+  // Check for existing admin session
+  const session = getSession();
+  if(session){
+    showApp(session);
+    bootApp();
+    return;
+  }
+
+  // No valid session — show login
+  showLogin();
+})();
+</script>
+</body>
+</html>
